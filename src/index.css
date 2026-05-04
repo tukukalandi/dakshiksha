@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-postal-red: #d32f2f;
+  --color-postal-yellow: #ffc107;
+  --color-postal-bg: #f8f9fa;
+  --color-postal-dark-maroon: #2D0000;
+  --color-postal-branding: #6B1111;
+  
+  /* Keep legacy names for compatibility if needed, but update values */
+  --color-ncert-maroon: #d32f2f;
+  --color-ncert-bg: #f8f9fa;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-postal-bg text-slate-900 transition-colors duration-300;
+    background-image: 
+      radial-gradient(#d32f2f08 1px, transparent 1px),
+      url('https://upload.wikimedia.org/wikipedia/en/thumb/3/32/India_Post.svg/250px-India_Post.svg.png');
+    background-size: 20px 20px, 400px auto;
+    background-repeat: repeat, no-repeat;
+    background-position: center, center;
+    background-attachment: fixed;
+    background-blend-mode: normal, overlay;
+  }
+}
+
+.ncert-shadow {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ncert-container {
+  @apply mx-auto max-w-7xl bg-white p-6 shadow-lg;
+}

@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ---------------------------------------------------------
+    // Phase 3: Primitives & Global Helpers
+    // ---------------------------------------------------------
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == "tukukalandi@gmail.com" || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Global Safety Net
+    match /{document=**} { allow read, write: if false; }
+
+    // ---------------------------------------------------------
+    // Phase 4: Validation Blueprints
+    // ---------------------------------------------------------
+
+    function isValidClass(data) {
+      return data.keys().hasAll(['id', 'name', 'order']) && data.keys().size() == 3
+        && data.id is string && data.id.size() <= 100
+        && data.name is string && data.name.size() <= 200
+        && data.order is number;
+    }
+
+    function isValidSubject(data) {
+      return data.keys().hasAll(['id', 'name', 'icon', 'classId']) && data.keys().size() == 4
+        && data.id is string && data.id.size() <= 100
+        && data.name is string && data.name.size() <= 200
+        && data.icon is string && data.icon.size() <= 100
+        && data.classId is string && data.classId.size() <= 100;
+    }
+
+    function isValidChapter(data) {
+      return data.keys().hasAll(['id', 'title', 'subjectId', 'classId']) && (data.keys().size() >= 4 && data.keys().size() <= 7)
+        && data.id is string && data.id.size() <= 100
+        && data.title is string && data.title.size() <= 500
+        && data.subjectId is string && data.subjectId.size() <= 100
+        && data.classId is string && data.classId.size() <= 100
+        && (!('documents' in data) || (data.documents is list && data.documents.size() <= 20))
+        && (!('videoUrl' in data) || (data.videoUrl is string && data.videoUrl.size() <= 2000))
+        && (!('quizHtml' in data) || (data.quizHtml is string && data.quizHtml.size() <= 50000));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) && (data.keys().size() >= 3 && data.keys().size() <= 4)
+        && data.uid == request.auth.uid
+        && data.email is string && data.email.size() <= 320
+        && data.role in ['admin', 'student']
+        && (!('xp' in data) || (data.xp is number));
+    }
+
+    function isValidPortalDoc(data) {
+      return data.keys().hasAll(['category', 'subType', 'name', 'link', 'createdBy', 'createdAt', 'updatedAt']) && (data.keys().size() >= 7 && data.keys().size() <= 8)
+        && data.category is string && data.category.size() <= 200
+        && data.subType is string && data.subType.size() <= 200
+        && data.name is string && data.name.size() <= 1000
+        && data.link is string && data.link.size() <= 5000
+        && (!('description' in data) || (data.description is string && data.description.size() <= 5000))
+        && data.createdBy == request.auth.uid
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    // ---------------------------------------------------------
+    // Phase 5: Collection Matches
+    // ---------------------------------------------------------
+
+    match /classes/{classId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidClass(incoming());
+      allow update: if isAdmin() && isValidClass(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidSubject(incoming());
+      allow update: if isAdmin() && isValidSubject(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /chapters/{chapterId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidChapter(incoming());
+      allow update: if isAdmin() && isValidChapter(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin(); // Only admins can list users. Normal users query by ID (get).
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if (isOwner(userId) || isAdmin()) && isValidUser(incoming()) && (
+        // Prevent users from escalating their own role
+        (isAdmin() || (incoming().role == existing().role))
+      );
+    }
+
+    match /portal_documents/{docId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidPortalDoc(incoming());
+      allow update: if isAdmin() && isValidPortalDoc(incoming()) && (
+        // Action: Metadata update
+        incoming().diff(existing()).affectedKeys().hasOnly(['subType', 'name', 'description', 'link', 'updatedAt'])
+        || incoming().diff(existing()).affectedKeys().hasOnly(['category', 'subType', 'name', 'description', 'link', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}

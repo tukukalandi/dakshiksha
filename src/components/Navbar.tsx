@@ -1,0 +1,689 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Search, Menu, X, ChevronRight, Globe, Type, Eye, 
+  Mail, Briefcase, Stamp, Package, Users, MoreHorizontal,
+  UserCircle, FileText, Download, Calendar, ArrowLeft,
+  GraduationCap, Book, BookOpen, LayoutGrid
+} from 'lucide-react';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { cn } from '../lib/utils';
+import Fuse from 'fuse.js';
+import { useAuth } from '../context/AuthContext';
+
+interface SearchItem {
+  id: string;
+  type: 'class' | 'subject' | 'chapter';
+  title: string;
+  subtitle?: string;
+  link: string;
+}
+
+export function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [classes, setClasses] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  const [subjectsList, setSubjectsList] = useState<any[]>([]);
+  const [chapters, setChapters] = useState<any[]>([]);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showSearchPreview, setShowSearchPreview] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  // BD Branch Auth State
+  const [showBDAuth, setShowBDAuth] = useState(false);
+  const [bdUserId, setBdUserId] = useState('');
+  const [bdPassword, setBdPassword] = useState('');
+  const [bdError, setBdError] = useState('');
+
+  useEffect(() => {
+    const unsubClasses = onSnapshot(query(collection(db, 'classes'), orderBy('order')), (snap) => {
+      setClasses(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'classes'));
+
+    const unsubSubjects = onSnapshot(collection(db, 'subjects'), (snap) => {
+      setSubjectsList(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'subjects'));
+
+    const unsubChapters = onSnapshot(collection(db, 'chapters'), (snap) => {
+      setChapters(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'chapters'));
+
+    return () => {
+      unsubClasses();
+      unsubSubjects();
+      unsubChapters();
+    };
+  }, []);
+
+  const searchIndex = useMemo(() => {
+    const items: SearchItem[] = [
+      ...classes.map(c => ({ id: c.id, type: 'class' as const, title: c.name, link: `/class/${c.id}` })),
+      ...subjectsList.map(s => {
+        const className = classes.find(c => c.id === s.classId)?.name || '';
+        return { id: s.id, type: 'subject' as const, title: s.name, subtitle: className, link: `/class/${s.classId}/subject/${s.id}` };
+      }),
+      ...chapters.map(ch => {
+        const subject = subjectsList.find(s => s.id === ch.subjectId);
+        const className = classes.find(c => c.id === ch.classId)?.name || '';
+        return { 
+          id: ch.id, 
+          type: 'chapter' as const, 
+          title: ch.title || ch.name, 
+          subtitle: `${className} • ${subject?.name || ''}`, 
+          link: `/class/${ch.classId}/subject/${ch.subjectId}/chapter/${ch.id}` 
+        };
+      })
+    ];
+    return new Fuse(items, { keys: ['title', 'subtitle'], threshold: 0.3 });
+  }, [classes, subjectsList, chapters]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return searchIndex.search(searchQuery.trim()).slice(0, 5).map(r => r.item);
+  }, [searchIndex, searchQuery]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSearchPreview(false);
+      setIsMenuOpen(false);
+    }
+  };
+
+  const { user, isAdmin, login, logout } = useAuth();
+
+  const examCategories = [
+    { name: 'GDS to MTS', search: ['mts'] },
+    { name: 'GDS to Postman', search: ['postman'] },
+    { name: 'PA/SA Exam', search: ['pa', 'sa'] },
+    { name: 'LGO Exam', search: ['lgo'] },
+    { name: 'IP Exam', search: ['inspector'] },
+  ];
+
+  const branches = [
+    { name: 'Mail Branch', icon: Mail },
+    { name: 'BD Branch', icon: Briefcase },
+    { name: 'Savings Branch', icon: Package },
+    { name: 'Philately Branch', icon: Stamp },
+    { name: 'Parcel Branch', icon: Package },
+    { name: 'CCS Branch', icon: Users },
+    { name: 'Other Branch', icon: MoreHorizontal },
+  ];
+
+  const extraMenuOptions = [
+    ...(isAdmin ? [{ name: 'Internal Portal', icon: LayoutGrid, link: '/internal-portal' }] : []),
+    { name: 'Staff Corner', icon: UserCircle, link: '/staff-corner' },
+    { name: 'Latest Circulars', icon: FileText, link: '/circulars' },
+    { name: 'Postal Forms', icon: Download, link: 'https://postal-forms.vercel.app/', external: true },
+    { name: 'Download Forms', icon: Download, link: '/forms' },
+    { name: 'Holiday Calendar', icon: Calendar, link: 'https://drive.google.com/file/d/1OTZ0aGL93WI7hGR5sfZAkM_xSwoFxSzn/view?usp=drive_link', external: true },
+  ];
+
+  const getClassesForSubject = (searchTerms: string[]) => {
+    const relevantSubjects = subjectsList.filter(s => 
+      searchTerms.some(term => s.name.toLowerCase().includes(term))
+    );
+    const classIds = relevantSubjects.map(s => s.classId);
+    return classes.filter(c => classIds.includes(c.id));
+  };
+
+  const getSubjectIdForClass = (classId: string, searchTerms: string[]) => {
+    const sub = subjectsList.find(s => 
+      s.classId === classId && 
+      searchTerms.some(term => s.name.toLowerCase().includes(term))
+    );
+    return sub?.id;
+  };
+
+  const handleBDAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    const userIdRegex = /^1\d{7}$/;
+    if (userIdRegex.test(bdUserId) && bdPassword === 'Dop@1234') {
+      window.open('https://sites.google.com/view/postal-knowledge/home', '_blank');
+      setShowBDAuth(false);
+      setBdUserId('');
+      setBdPassword('');
+      setBdError('');
+    } else {
+      setBdError('Invalid User ID or Password. User ID must be 8 digits starting with 1.');
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      setActiveDropdown(null);
+      // Close branch menu if clicking outside
+      const target = e.target as HTMLElement;
+      if (!target.closest('.branch-menu-container')) {
+        setIsBranchMenuOpen(false);
+      }
+      // Close search preview if clicking outside
+      if (!target.closest('.search-container')) {
+        setShowSearchPreview(false);
+      }
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  return (
+    <header className="w-full">
+      {/* Top Accessibility Bar (Language Bar) */}
+      <div className="bg-postal-dark-maroon border-b border-white/10 py-1 text-[11px] font-medium text-white">
+        <div className="mx-auto max-w-7xl flex items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
+          <button className="hover:text-postal-yellow flex items-center gap-1">
+            <Globe size={12} /> Language
+          </button>
+          <button className="hover:text-postal-yellow flex items-center gap-1">
+            <Type size={12} /> Text Size
+          </button>
+          <button className="hover:text-postal-yellow flex items-center gap-1">
+            <Eye size={12} /> Contrast
+          </button>
+          <div className="h-3 w-[1px] bg-white/30 mx-1" />
+          <span>{new Date().toLocaleDateString()}</span>
+        </div>
+      </div>
+
+      {/* Main Branding Header (Dark Red) */}
+      <div className="bg-postal-branding text-white py-4 shadow-sm relative border-b border-white/10">
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            {!isHome && (
+              <button 
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white md:hidden"
+                aria-label="Go Back"
+              >
+                <ArrowLeft size={24} />
+              </button>
+            )}
+            <div className="bg-white p-1 rounded-sm shadow-sm flex items-center justify-center">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" 
+                alt="Indian National Emblem" 
+                className="h-14 w-auto"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            {/* Branch Menu Button */}
+            <div className="branch-menu-container relative">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsBranchMenuOpen(!isBranchMenuOpen);
+                }}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-postal-yellow"
+                aria-label="Toggle Branch Menu"
+              >
+                {isBranchMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+
+              {/* Branch Side Menu */}
+              {isBranchMenuOpen && (
+                <div className="absolute left-0 top-full mt-4 w-64 bg-white text-slate-900 shadow-2xl rounded-sm border border-slate-200 z-[100] overflow-hidden animate-in slide-in-from-left duration-200">
+                  <div className="bg-postal-red p-4 text-white">
+                    <h3 className="font-bold text-lg">My Branches</h3>
+                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Select a branch to explore</p>
+                  </div>
+                  <div className="py-2">
+                    {branches.map((branch) => {
+                      const isExternal = branch.name === 'Philately Branch' || branch.name === 'BD Branch' || branch.name === 'Mail Branch';
+                      const externalLinks: Record<string, string> = {
+                        'Philately Branch': 'https://philately.vercel.app/',
+                        'BD Branch': 'https://bd-branch-dhenkanal.vercel.app/',
+                        'Mail Branch': 'https://mail-branch.vercel.app/'
+                      };
+                      
+                      const link = branch.name === 'BD Branch' ? '/branch/bd' : 
+                                   branch.name === 'Savings Branch' ? '/branch/savings' : 
+                                   branch.name === 'Other Branch' ? '/branch/other' : '#';
+                      
+                      if (isExternal) {
+                        return (
+                          <a
+                            key={branch.name}
+                            href={externalLinks[branch.name]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 transition-colors border-b border-slate-50 last:border-0"
+                            onClick={() => setIsBranchMenuOpen(false)}
+                          >
+                            <branch.icon size={18} className="text-postal-red" />
+                            {branch.name}
+                          </a>
+                        );
+                      }
+
+                      return (
+                        <Link
+                          key={branch.name}
+                          to={link}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 transition-colors border-b border-slate-50 last:border-0"
+                          onClick={() => setIsBranchMenuOpen(false)}
+                        >
+                          <branch.icon size={18} className="text-postal-red" />
+                          {branch.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <div className="bg-slate-50 p-3 border-t border-slate-200">
+                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Quick Access</h4>
+                    <div className="space-y-1">
+                      {extraMenuOptions.map((option) => {
+                        if (option.external) {
+                          return (
+                            <a
+                              key={option.name}
+                              href={option.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-slate-600 hover:text-postal-red transition-colors"
+                              onClick={() => setIsBranchMenuOpen(false)}
+                            >
+                              <option.icon size={14} />
+                              {option.name}
+                            </a>
+                          );
+                        }
+                        return (
+                          <Link
+                            key={option.name}
+                            to={option.link}
+                            className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-slate-600 hover:text-postal-red transition-colors"
+                            onClick={() => setIsBranchMenuOpen(false)}
+                          >
+                            <option.icon size={14} />
+                            {option.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link to="/" className="flex items-center gap-4 group">
+              <div className="flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-md border border-postal-red/10 overflow-hidden group-hover:scale-105 transition-transform">
+                <div className="relative">
+                  <Mail size={32} className="text-postal-red" />
+                  <GraduationCap 
+                    size={20} 
+                    className="absolute -top-1 -right-1 text-postal-yellow stroke-postal-red stroke-2" 
+                  />
+                </div>
+              </div>
+              <div className="text-left">
+                <h1 className="text-xl md:text-2xl font-black leading-tight tracking-tight text-white group-hover:text-postal-yellow transition-colors">
+                  डाकशिक्षा <span className="text-postal-yellow ml-1">DakShiksha</span>
+                </h1>
+                <p className="text-[9px] uppercase tracking-[0.25em] text-white/70 font-bold mt-0.5">
+                  Postal Educational Knowledge Portal
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative flex-1 md:w-80 search-container">
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  placeholder="Search resources..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchPreview(true);
+                  }}
+                  onFocus={() => setShowSearchPreview(true)}
+                  className="h-10 w-full rounded-sm border border-white/20 bg-white/10 px-4 pr-10 text-sm text-white placeholder:text-white/50 focus:bg-white/20 focus:border-postal-yellow focus:outline-none transition-all"
+                />
+                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-postal-yellow">
+                  <Search size={18} />
+                </button>
+              </form>
+
+              {/* Search Preview Dropdown */}
+              {showSearchPreview && searchQuery.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-2">
+                    {searchResults.length > 0 ? (
+                      <>
+                        {searchResults.map((item) => (
+                          <Link
+                            key={`${item.type}-${item.id}`}
+                            to={item.link}
+                            onClick={() => {
+                              setShowSearchPreview(false);
+                              setSearchQuery('');
+                            }}
+                            className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-md transition-colors group"
+                          >
+                            <div className={cn(
+                              "w-8 h-8 rounded flex items-center justify-center shrink-0",
+                              item.type === 'class' ? "bg-blue-50 text-blue-600" :
+                              item.type === 'subject' ? "bg-emerald-50 text-emerald-600" :
+                              "bg-amber-50 text-amber-600"
+                            )}>
+                              {item.type === 'class' ? <GraduationCap size={16} /> :
+                               item.type === 'subject' ? <Book size={16} /> :
+                               <BookOpen size={16} />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-bold text-slate-800 group-hover:text-postal-red truncate">
+                                {item.title}
+                              </h4>
+                              {item.subtitle && (
+                                <p className="text-[10px] text-slate-500 truncate">{item.subtitle}</p>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
+                        <button
+                          onClick={handleSearch}
+                          className="w-full mt-2 p-2 text-xs font-bold text-postal-red hover:bg-postal-red/5 rounded transition-colors border-t border-slate-100"
+                        >
+                          View all results
+                        </button>
+                      </>
+                    ) : (
+                      <div className="p-4 text-center">
+                        <p className="text-xs text-slate-500">No results found for "{searchQuery}"</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="bg-white p-1 rounded-sm shadow-sm flex items-center justify-center">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/en/3/32/India_Post.svg" 
+                alt="India Post Logo" 
+                className="h-14 w-auto"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* User Auth Section */}
+            <div className="relative group ml-2">
+              <button 
+                className={cn(
+                  "flex items-center gap-2 p-2 rounded-sm border-2 transition-all",
+                  isAdmin ? "bg-postal-yellow text-black border-black" : "bg-white/10 text-white border-white/20 hover:bg-white/20"
+                )}
+                onClick={() => !user && login()}
+              >
+                {user ? (
+                  <>
+                    <img src={user.photoURL || ""} alt="" className="w-6 h-6 rounded-full border border-black/10" referrerPolicy="no-referrer" />
+                    <div className="hidden sm:block text-left">
+                      <p className="text-[10px] font-black uppercase leading-none">{isAdmin ? 'ADMIN' : 'USER'}</p>
+                      <p className="text-[8px] opacity-70 truncate max-w-[80px]">{user.email}</p>
+                    </div>
+                  </>
+                ) : (
+                  <UserCircle size={20} />
+                )}
+              </button>
+              
+              {user && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-2xl border-2 border-black hidden group-hover:block z-50">
+                  <div className="p-3 border-b-2 border-black/10">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Logged in as</p>
+                    <p className="text-xs font-bold text-slate-800 truncate">{user.email}</p>
+                  </div>
+                  {isAdmin && (
+                    <Link to="/internal-portal" className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-black/5">
+                      <LayoutGrid size={16} className="text-postal-red" />
+                      Internal Portal
+                    </Link>
+                  )}
+                  <button 
+                    onClick={logout}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 text-left"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Bar (India Post Red) */}
+      <nav className="bg-postal-red sticky top-0 z-40 shadow-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-12">
+            <div className="hidden md:flex items-center gap-10 text-[13px] font-bold text-white">
+              <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest">HOME</Link>
+              <Link to="/rules" className="hover:text-postal-yellow transition-colors tracking-widest">RULES</Link>
+              <Link to="/exams/po-guide" className="hover:text-postal-yellow transition-colors tracking-widest">GUIDES</Link>
+              <a 
+                href="https://app.indiapost.gov.in/employeeportal" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-postal-yellow transition-colors tracking-widest uppercase"
+              >
+                APT 2.0
+              </a>
+              
+              <div className="relative group h-12 flex items-center">
+                <button className="hover:text-postal-yellow transition-colors flex items-center gap-1 tracking-widest uppercase">
+                  OTHERS <ChevronRight size={14} className="rotate-90 opacity-50" />
+                </button>
+                <div className="absolute left-0 top-full hidden group-hover:block w-72 bg-white shadow-2xl border border-slate-200 py-2 z-50">
+                  <a 
+                    href="https://www.indiapost.gov.in/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                  >
+                    India Post Website
+                  </a>
+                  <a 
+                    href="https://dhenkanalpostaldivision.org/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                  >
+                    Dhenkanal Postal Division Website
+                  </a>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowBDAuth(true);
+                    }}
+                    className="w-full text-left block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                  >
+                    BD Branch Website
+                  </button>
+                  <a 
+                    href="https://office-directory.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                  >
+                    Office Directory
+                  </a>
+                  <a 
+                    href="https://dhenkanal-rs-so.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                  >
+                    Dhenkanal RS SO
+                  </a>
+                  {isAdmin && (
+                    <Link to="/internal-portal" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase">
+                      Internal Portal
+                    </Link>
+                  )}
+                  <div className="h-[1px] bg-slate-100 my-1" />
+                  <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">ABOUT US</Link>
+                  <Link to="/contact" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">CONTACT</Link>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-white hover:text-postal-yellow"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t border-slate-100 p-4 space-y-4 shadow-xl max-h-[80vh] overflow-y-auto">
+            <div className="space-y-2">
+              <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 py-2 font-bold text-postal-red border-b border-slate-50">
+                <ArrowLeft size={16} /> BACK TO HOME
+              </Link>
+              <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">HOME</Link>
+              <Link to="/rules" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">RULES</Link>
+              <Link to="/exams/po-guide" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">GUIDES</Link>
+              <a 
+                href="https://app.indiapost.gov.in/employeeportal" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block py-2 font-bold text-slate-700 border-b border-slate-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                APT 2.0
+              </a>
+              
+              <div className="py-2">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Others</p>
+                <div className="space-y-1 pl-2 border-l-2 border-postal-red/10">
+                  <a 
+                    href="https://www.indiapost.gov.in/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                  >
+                    India Post Website
+                  </a>
+                  <a 
+                    href="https://dhenkanalpostaldivision.org/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                  >
+                    Dhenkanal Postal Division Website
+                  </a>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMenuOpen(false);
+                      setShowBDAuth(true);
+                    }}
+                    className="w-full text-left block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                  >
+                    BD Branch Website
+                  </button>
+                  <a 
+                    href="https://office-directory.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    OFFICE DIRECTORY
+                  </a>
+                  <a 
+                    href="https://dhenkanal-rs-so.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    DHENKANAL RS SO
+                  </a>
+                  <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">ABOUT US</Link>
+                  <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">CONTACT</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* BD Branch Auth Modal */}
+      {showBDAuth && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-postal-red p-6 text-white flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold">BD Branch Login</h3>
+                <p className="text-xs opacity-80">Restricted Access Portal</p>
+              </div>
+              <button 
+                onClick={() => setShowBDAuth(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleBDAuth} className="p-6 space-y-4">
+              {bdError && (
+                <div className="p-3 bg-red-50 border border-red-100 text-red-600 text-xs font-medium rounded">
+                  {bdError}
+                </div>
+              )}
+              
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">User ID</label>
+                <input 
+                  type="text"
+                  value={bdUserId}
+                  onChange={(e) => setBdUserId(e.target.value)}
+                  className="w-full h-11 px-4 rounded border border-slate-200 focus:border-postal-red focus:ring-1 focus:ring-postal-red outline-none transition-all text-sm"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+                <input 
+                  type="password"
+                  placeholder="••••••••"
+                  value={bdPassword}
+                  onChange={(e) => setBdPassword(e.target.value)}
+                  className="w-full h-11 px-4 rounded border border-slate-200 focus:border-postal-red focus:ring-1 focus:ring-postal-red outline-none transition-all text-sm"
+                  required
+                />
+              </div>
+              
+              <button 
+                type="submit"
+                className="w-full h-12 bg-postal-red text-white font-bold rounded shadow-lg hover:bg-red-700 transition-all active:scale-[0.98] mt-2"
+              >
+                Access Website
+              </button>
+            </form>
+            
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 text-center">
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest leading-relaxed">
+                Unauthorized access is prohibited. <br />
+                Please contact your administrator for credentials.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
