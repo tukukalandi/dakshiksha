@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { 
   Book, BarChart3, MapPin, Users, Info,
-  ArrowLeft, Globe
+  ArrowLeft, Globe, Building, Truck, Hash
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -10,46 +10,53 @@ import { cn } from '../lib/utils';
 export function OtherBranch() {
   const cards = [
     {
-      title: "Book of information",
+      title: "Book of Information 2025",
       desc: "Comprehensive manual containing essential postal operational information",
-      link: "#",
+      link: "https://zippy-scone-d12349.netlify.app/",
       color: "bg-postal-red",
       icon: Book
     },
     {
       title: "Post Office Analytics Dashboard",
       desc: "Real-time data visualization and performance metrics for post offices",
-      link: "#",
+      link: "https://broken-yellow-uzmoi2g0ez.edgeone.app/",
       color: "bg-[#009688]", // Teal
       icon: BarChart3
     },
     {
-      title: "Book of Information",
-      desc: "Secondary reference guide for departmental rules and procedures",
-      link: "#",
-      color: "bg-[#7e57c2]", // Purple
-      icon: Info
-    },
-    {
       title: "Village details of BOs",
       desc: "Detailed database of villages served by Branch Post Offices",
-      link: "#",
+      link: "https://panchayatvillaglist.edgeone.app/",
       color: "bg-[#e65100]", // Deep Orange
       icon: MapPin
     },
     {
       title: "Sanction Strength of staff",
       desc: "Official records of approved staff strength across various cadres",
-      link: "#",
+      link: "https://impossible-gray-zp1rgluqcx.edgeone.app/",
       color: "bg-[#1976d2]", // Blue
       icon: Users
     },
     {
-      title: "Dhenkanal RS SO",
-      desc: "Resource portal and information for Dhenkanal RS SO",
-      link: "https://dhenkanal-rs-so.vercel.app/",
-      color: "bg-postal-red",
-      icon: Globe
+      title: "Building Branch data",
+      desc: "Information regarding branch buildings and properties",
+      link: "https://jade-nougat-bd6c06.netlify.app/",
+      color: "bg-[#7e57c2]", // Purple
+      icon: Building
+    },
+    {
+      title: "Delivery Beat Details",
+      desc: "Comprehensive information on delivery beats and routes",
+      link: "https://deliverybeatdata.vercel.app/",
+      color: "bg-[#4caf50]", // Green
+      icon: Truck
+    },
+    {
+      title: "Branch office codes",
+      desc: "Directory of codes for all branch offices",
+      link: "https://bodetails-dkl.edgeone.app/",
+      color: "bg-[#f57c00]", // Orange
+      icon: Hash
     }
   ];
 
@@ -85,6 +92,8 @@ export function OtherBranch() {
                 card.color === 'bg-[#009688]' ? 'from-teal-500 to-emerald-700 shadow-emerald-500/20' :
                 card.color === 'bg-[#7e57c2]' ? 'from-violet-500 to-purple-700 shadow-violet-500/20' :
                 card.color === 'bg-[#e65100]' ? 'from-orange-500 to-amber-700 shadow-orange-500/20' :
+                card.color === 'bg-[#4caf50]' ? 'from-green-500 to-emerald-700 shadow-green-500/20' :
+                card.color === 'bg-[#f57c00]' ? 'from-orange-400 to-orange-600 shadow-orange-500/20' :
                 'from-blue-500 to-indigo-700 shadow-blue-500/20';
 
               return (
