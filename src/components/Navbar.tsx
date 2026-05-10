@@ -650,7 +650,7 @@ export function Navbar() {
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">User ID</label>
                 <input 
                   type="text"
-                  value={bdUserId}
+                  value={bdUserId || ''}
                   onChange={(e) => setBdUserId(e.target.value)}
                   className="w-full h-11 px-4 rounded border border-slate-200 focus:border-postal-red focus:ring-1 focus:ring-postal-red outline-none transition-all text-sm"
                   required
@@ -662,7 +662,7 @@ export function Navbar() {
                 <input 
                   type="password"
                   placeholder="••••••••"
-                  value={bdPassword}
+                  value={bdPassword || ''}
                   onChange={(e) => setBdPassword(e.target.value)}
                   className="w-full h-11 px-4 rounded border border-slate-200 focus:border-postal-red focus:ring-1 focus:ring-postal-red outline-none transition-all text-sm"
                   required

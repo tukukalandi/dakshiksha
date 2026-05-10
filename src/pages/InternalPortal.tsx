@@ -200,7 +200,14 @@ export function InternalPortal() {
           body: uploadData
         });
 
-        const data = await res.json();
+        const resText = await res.text();
+        let data;
+        try {
+          data = JSON.parse(resText);
+        } catch (e) {
+          console.error('Server HTML error response:', resText.substring(0, 500));
+          throw new Error('Server returned invalid response (HTML)');
+        }
         
         if (!res.ok) {
           throw new Error(data.error || 'File upload failed');
@@ -282,7 +289,7 @@ export function InternalPortal() {
                     <LayoutPanelLeft size={10} /> Category *
                   </label>
                   <select
-                    value={formData.category}
+                    value={formData.category || CATEGORIES[0]}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
                   >
@@ -300,7 +307,7 @@ export function InternalPortal() {
                   <input
                     type="text"
                     placeholder="e.g. Previous Year Papers"
-                    value={formData.subType}
+                    value={formData.subType || ''}
                     onChange={(e) => setFormData({ ...formData, subType: e.target.value })}
                     className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
                     required
@@ -315,7 +322,7 @@ export function InternalPortal() {
                   <input
                     type="text"
                     placeholder="Official Title"
-                    value={formData.name}
+                    value={formData.name || ''}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
                     required
@@ -329,7 +336,7 @@ export function InternalPortal() {
                   </label>
                   <textarea
                     placeholder="Brief context..."
-                    value={formData.description}
+                    value={formData.description || ''}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs min-h-[80px] focus:outline-none focus:bg-white transition-colors resize-none"
                   />
@@ -370,7 +377,7 @@ export function InternalPortal() {
                       <input
                         type="url"
                         placeholder="https://example.com/document"
-                        value={formData.link}
+                        value={formData.link || ''}
                         onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                         className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
                         required={uploadSource === 'link'}
@@ -565,7 +572,7 @@ export function InternalPortal() {
                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Sub-Type</label>
                     <input 
                       type="text"
-                      value={editFormData.subType}
+                      value={editFormData.subType || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, subType: e.target.value })}
                       className="w-full p-3 bg-slate-100 border-2 border-black font-mono text-sm focus:bg-white"
                       required
@@ -575,7 +582,7 @@ export function InternalPortal() {
                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Document Name</label>
                     <input 
                       type="text"
-                      value={editFormData.name}
+                      value={editFormData.name || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                       className="w-full p-3 bg-slate-100 border-2 border-black font-mono text-sm focus:bg-white"
                       required
@@ -584,7 +591,7 @@ export function InternalPortal() {
                   <div className="md:col-span-2 space-y-1">
                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Description</label>
                     <textarea 
-                      value={editFormData.description}
+                      value={editFormData.description || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
                       className="w-full p-3 bg-slate-100 border-2 border-black font-mono text-sm h-32 resize-none focus:bg-white"
                     />
@@ -593,7 +600,7 @@ export function InternalPortal() {
                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Link</label>
                     <input 
                       type="url"
-                      value={editFormData.link}
+                      value={editFormData.link || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, link: e.target.value })}
                       className="w-full p-3 bg-slate-100 border-2 border-black font-mono text-sm focus:bg-white"
                       required

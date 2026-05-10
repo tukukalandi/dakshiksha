@@ -315,7 +315,7 @@ export function AccountantExam() {
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
                       <select 
-                        value={calcData.category}
+                        value={calcData.category || 'OC'}
                         onChange={(e) => setCalcData({ ...calcData, category: e.target.value })}
                         className="w-full p-3 border border-slate-200 rounded-lg bg-slate-50 focus:ring-2 focus:ring-postal-red focus:border-postal-red outline-none transition-all"
                       >
@@ -327,7 +327,7 @@ export function AccountantExam() {
                       <label className="block text-sm font-bold text-slate-700 mb-2">Paper I Marks (out of 100)</label>
                       <input 
                         type="number" 
-                        value={calcData.p1}
+                        value={calcData.p1 || ''}
                         onChange={(e) => setCalcData({ ...calcData, p1: e.target.value })}
                         placeholder="Enter marks" 
                         className="w-full p-3 border border-slate-200 rounded-lg bg-slate-50 focus:ring-2 focus:ring-postal-red focus:border-postal-red outline-none transition-all"
@@ -337,7 +337,7 @@ export function AccountantExam() {
                       <label className="block text-sm font-bold text-slate-700 mb-2">Paper II Marks (out of 100)</label>
                       <input 
                         type="number" 
-                        value={calcData.p2}
+                        value={calcData.p2 || ''}
                         onChange={(e) => setCalcData({ ...calcData, p2: e.target.value })}
                         placeholder="Enter marks" 
                         className="w-full p-3 border border-slate-200 rounded-lg bg-slate-50 focus:ring-2 focus:ring-postal-red focus:border-postal-red outline-none transition-all"
