@@ -24,6 +24,7 @@ import { OtherBranch } from './pages/OtherBranch';
 import { SearchResults } from './pages/SearchResults';
 import { InternalPortal } from './pages/InternalPortal';
 import { PublicPortal } from './pages/PublicPortal';
+import { MyBranchPortal } from './pages/MyBranchPortal';
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/internal-portal" element={<InternalPortal />} />
               <Route path="/portal/:categorySlug" element={<PublicPortal />} />
               <Route path="/rules" element={<Rules />} />
+              <Route path="/my-branch-portal" element={<MyBranchPortal />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/exams/accountant" element={<AccountantExam />} />
               <Route path="/branch/savings" element={<SavingsBranch />} />

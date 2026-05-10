@@ -8,7 +8,7 @@ import {
   Plus, Save, Link as LinkIcon, FileText, 
   Type, AlignLeft, LayoutPanelLeft, ChevronRight, 
   AlertCircle, CheckCircle2, Trash2, ExternalLink,
-  Clock, Tag, Search, Edit2, X
+  Clock, Tag, Search, Edit2, X, UploadCloud
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -42,6 +42,9 @@ export function InternalPortal() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingDoc, setEditingDoc] = useState<PortalDoc | null>(null);
+  const [uploadSource, setUploadSource] = useState<'link' | 'file'>('link');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     category: CATEGORIES[0],
@@ -61,10 +64,10 @@ export function InternalPortal() {
   const startEditing = (doc: PortalDoc) => {
     setEditingDoc(doc);
     setEditFormData({
-      subType: doc.subType,
-      name: doc.name,
+      subType: doc.subType || '',
+      name: doc.name || '',
       description: doc.description || '',
-      link: doc.link
+      link: doc.link || ''
     });
   };
 
@@ -167,17 +170,51 @@ export function InternalPortal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.subType || !formData.name || !formData.link) {
+    if (!formData.subType || !formData.name) {
       setMessage({ type: 'error', text: 'Please provide all required fields.' });
       return;
     }
 
+    if (uploadSource === 'link' && !formData.link) {
+      setMessage({ type: 'error', text: 'Please provide a document link.' });
+      return;
+    }
+
+    if (uploadSource === 'file' && !selectedFile) {
+      setMessage({ type: 'error', text: 'Please select a file to upload.' });
+      return;
+    }
+
     setLoading(true);
-    setMessage(null);
+    setMessage({ type: 'success', text: uploadSource === 'file' ? 'Uploading file to Drive...' : 'Saving to repository...' });
 
     try {
+      let finalLink = formData.link;
+
+      if (uploadSource === 'file' && selectedFile) {
+        const uploadData = new FormData();
+        uploadData.append('file', selectedFile);
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadData
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || 'File upload failed');
+        }
+
+        finalLink = data.link;
+      }
+
       await addDoc(collection(db, 'portal_documents'), {
-        ...formData,
+        category: formData.category,
+        subType: formData.subType,
+        name: formData.name,
+        description: formData.description,
+        link: finalLink,
         createdBy: user?.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -190,11 +227,13 @@ export function InternalPortal() {
         description: '',
         link: ''
       });
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error: any) {
       console.error("Save Error:", error);
       setMessage({ 
         type: 'error', 
-        text: 'Failed to save document. Please try again.' 
+        text: error.message || 'Failed to save document. Please try again.' 
       });
     } finally {
       setLoading(false);
@@ -296,19 +335,67 @@ export function InternalPortal() {
                   />
                 </div>
 
-                {/* Link */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-mono italic uppercase opacity-50 tracking-wider flex items-center gap-1">
-                    <LinkIcon size={10} /> Document URL Link *
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://example.com/document"
-                    value={formData.link}
-                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
-                    required
-                  />
+                {/* Upload Source Toggle & Input */}
+                <div className="space-y-3">
+                  <div className="flex gap-4 p-1 bg-[#E4E3E0] border border-[#141414]">
+                    <button
+                      type="button"
+                      onClick={() => setUploadSource('link')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-mono font-bold uppercase transition-colors ${
+                        uploadSource === 'link' 
+                          ? 'bg-[#141414] text-white shadow-sm' 
+                          : 'text-[#141414]/60 hover:text-[#141414]'
+                      }`}
+                    >
+                      <LinkIcon size={14} /> Provide Direct Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadSource('file')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-mono font-bold uppercase transition-colors ${
+                        uploadSource === 'file' 
+                          ? 'bg-[#141414] text-white shadow-sm' 
+                          : 'text-[#141414]/60 hover:text-[#141414]'
+                      }`}
+                    >
+                      <UploadCloud size={14} /> Upload File to Drive
+                    </button>
+                  </div>
+
+                  {uploadSource === 'link' ? (
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-mono italic uppercase opacity-50 tracking-wider flex items-center gap-1">
+                        <LinkIcon size={10} /> Document URL Link *
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://example.com/document"
+                        value={formData.link}
+                        onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                        className="w-full bg-[#E4E3E0] border border-[#141414] p-3 font-mono text-xs focus:outline-none focus:bg-white transition-colors"
+                        required={uploadSource === 'link'}
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-mono italic uppercase opacity-50 tracking-wider flex items-center gap-1">
+                        <UploadCloud size={10} /> Select File *
+                      </label>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*"
+                        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                        className="w-full bg-[#E4E3E0] border border-[#141414] p-2.5 font-mono text-xs focus:outline-none focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-[#141414] file:text-white file:text-[10px] file:font-mono file:uppercase file:cursor-pointer hover:file:bg-black/80"
+                        required={uploadSource === 'file'}
+                      />
+                      {selectedFile && (
+                        <p className="text-[10px] font-mono mt-2 text-emerald-600 truncate flex items-center gap-1">
+                          <CheckCircle2 size={10} /> {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

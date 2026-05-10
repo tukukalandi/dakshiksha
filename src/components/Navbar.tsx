@@ -466,6 +466,7 @@ export function Navbar() {
           <div className="flex items-center justify-between h-12">
             <div className="hidden md:flex items-center gap-10 text-[13px] font-bold text-white">
               <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest">HOME</Link>
+              <Link to="/my-branch-portal" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">MY BRANCH PORTAL</Link>
               <Link to="/rules" className="hover:text-postal-yellow transition-colors tracking-widest">RULES</Link>
               <Link to="/exams/po-guide" className="hover:text-postal-yellow transition-colors tracking-widest">GUIDES</Link>
               <a 
@@ -552,6 +553,7 @@ export function Navbar() {
                 <ArrowLeft size={16} /> BACK TO HOME
               </Link>
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">HOME</Link>
+              <Link to="/my-branch-portal" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">MY BRANCH PORTAL</Link>
               <Link to="/rules" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">RULES</Link>
               <Link to="/exams/po-guide" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">GUIDES</Link>
               <a 

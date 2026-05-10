@@ -207,63 +207,6 @@ export function Home() {
       </div>
 
 
-      {/* Branch Portal Section */}
-      <div className="bg-white border-y border-slate-200 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-postal-red mb-4">My Branch Portal</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">Access specialized resources and operational guidelines for various postal branches.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {BRANCHES.map((branch, i) => {
-              const color = CARD_COLORS[(i + 4) % CARD_COLORS.length];
-              return (
-                <motion.div
-                  key={branch.name}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  onClick={() => {
-                    if (branch.name === 'BD Branch') {
-                      window.open('https://bd-branch-dhenkanal.vercel.app/', '_blank');
-                    } else if (branch.name === 'Mail Branch') {
-                      window.open('https://mail-branch.vercel.app/', '_blank');
-                    } else if (branch.name === 'Savings Branch') {
-                      navigate('/branch/savings');
-                    } else if (branch.name === 'Other Branch') {
-                      navigate('/branch/other');
-                    } else if (branch.name === 'Philately Branch') {
-                      window.open('https://philately.vercel.app/', '_blank');
-                    }
-                  }}
-                  className={cn(
-                    "group p-8 bg-white rounded-[2rem] border-2 shadow-lg transition-all cursor-pointer",
-                    color.border,
-                    color.shadow
-                  )}
-                >
-                  <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:scale-110 shadow-md",
-                    color.icon
-                  )}>
-                    <branch.icon size={32} />
-                  </div>
-                  <h3 className={cn("text-2xl font-black mb-2 uppercase tracking-tight", color.text)}>{branch.name}</h3>
-                  <p className="text-sm text-slate-500 mb-6 font-medium leading-relaxed opacity-80 group-hover:opacity-100">{branch.desc}</p>
-                  <div className={cn(
-                    "flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all",
-                    color.text
-                  )}>
-                    Explore Branch <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
 
       {/* Our Services Section */}
       <div className="bg-slate-50 py-20 border-b border-slate-200">

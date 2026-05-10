@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieSession from 'cookie-session';
+import multer from 'multer';
+import { google } from 'googleapis';
+import stream from 'stream';
 
 dotenv.config();
 
@@ -39,6 +42,88 @@ const isNetlify = process.env.NETLIFY === 'true' || !!process.env.LAMBDA_TASK_RO
 // API routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// File upload setup
+const upload = multer({
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB limit
+  }
+});
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_DRIVE_FOLDER_ID } = process.env;
+
+    if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_DRIVE_FOLDER_ID) {
+      console.error('Missing Google Drive credentials:', {
+        hasEmail: !!GOOGLE_CLIENT_EMAIL,
+        hasKey: !!GOOGLE_PRIVATE_KEY,
+        hasFolder: !!GOOGLE_DRIVE_FOLDER_ID
+      });
+      return res.status(500).json({ error: 'Google Drive credentials not configured' });
+    }
+
+    // Fix newlines in private key
+    const privateKey = GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: privateKey,
+      },
+      scopes: ['https://www.googleapis.com/auth/drive.file'],
+    });
+
+    const drive = google.drive({ version: 'v3', auth });
+
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(req.file.buffer);
+
+    const fileMetadata = {
+      name: req.file.originalname,
+      parents: [GOOGLE_DRIVE_FOLDER_ID],
+    };
+
+    const media = {
+      mimeType: req.file.mimetype,
+      body: bufferStream,
+    };
+
+    console.log('Uploading file to Google Drive...');
+    const response = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink, webContentLink',
+    });
+
+    console.log('File uploaded, making it public...');
+    // Try to make the file public
+    try {
+      await drive.permissions.create({
+        fileId: response.data.id!,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
+    } catch (permError) {
+      console.warn("Could not make file public (may be restricted by Workspace settings):", permError);
+    }
+
+    res.json({
+      success: true,
+      link: response.data.webViewLink,
+      fileId: response.data.id
+    });
+  } catch (error) {
+    console.error('Error uploading file to Drive:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to upload file to Google Drive' });
+  }
 });
 
 // Final Error Handler
