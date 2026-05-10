@@ -205,7 +205,7 @@ export function BDBranch() {
                       <input 
                         type="text"
                         placeholder="8-digit ID (starts with 1)"
-                        value={userId}
+                        value={userId || ''}
                         onChange={(e) => setUserId(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-postal-red focus:ring-4 focus:ring-postal-red/10 outline-none transition-all font-medium"
                         required
@@ -220,7 +220,7 @@ export function BDBranch() {
                       <input 
                         type="password"
                         placeholder="Enter password"
-                        value={password}
+                        value={password || ''}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-postal-red focus:ring-4 focus:ring-postal-red/10 outline-none transition-all font-medium"
                         required

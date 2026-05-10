@@ -57,49 +57,72 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const { GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_DRIVE_FOLDER_ID } = process.env;
+    const { GOOGLE_DRIVE_FOLDER_ID } = process.env;
 
-    if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_DRIVE_FOLDER_ID) {
-      console.error('Missing Google Drive credentials:', {
-        hasEmail: !!GOOGLE_CLIENT_EMAIL,
-        hasKey: !!GOOGLE_PRIVATE_KEY,
-        hasFolder: !!GOOGLE_DRIVE_FOLDER_ID
-      });
+    if (!GOOGLE_DRIVE_FOLDER_ID) {
+      console.error('Missing Google Drive folder ID');
       return res.status(500).json({ error: 'Google Drive credentials not configured' });
     }
 
-    // Fix newlines in private key
-    const privateKey = GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+    const token = authHeader.split(' ')[1];
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: GOOGLE_CLIENT_EMAIL,
-        private_key: privateKey,
-      },
-      scopes: ['https://www.googleapis.com/auth/drive.file'],
-    });
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: token });
 
-    const drive = google.drive({ version: 'v3', auth });
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
     const bufferStream = new stream.PassThrough();
     bufferStream.end(req.file.buffer);
-
-    const fileMetadata = {
-      name: req.file.originalname,
-      parents: [GOOGLE_DRIVE_FOLDER_ID],
-    };
 
     const media = {
       mimeType: req.file.mimetype,
       body: bufferStream,
     };
 
-    console.log('Uploading file to Google Drive...');
-    const response = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, webViewLink, webContentLink',
-    });
+    let folderId = GOOGLE_DRIVE_FOLDER_ID;
+    
+    // Extract ID from full URL
+    const idMatch = folderId.match(/[-\w]{25,}/);
+    if (idMatch) {
+      folderId = idMatch[0];
+    }
+
+    const fileMetadata: any = {
+      name: req.file.originalname,
+    };
+    
+    if (folderId) {
+      fileMetadata.parents = [folderId];
+    }
+
+    console.log('Uploading file to Google Drive. Target folder ID:', folderId, 'Original env value:', GOOGLE_DRIVE_FOLDER_ID);
+    
+    let response;
+    try {
+      response = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: 'id, webViewLink, webContentLink',
+        supportsAllDrives: true,
+      });
+    } catch (e: any) {
+      if (e.message?.includes('File not found') && fileMetadata.parents) {
+        console.warn('Folder not found (may lack permissions). Attempting upload without parents array...');
+        delete fileMetadata.parents;
+        response = await drive.files.create({
+          requestBody: fileMetadata,
+          media: media,
+          fields: 'id, webViewLink, webContentLink',
+          supportsAllDrives: true,
+        });
+      } else {
+        throw e;
+      }
+    }
 
     console.log('File uploaded, making it public...');
     // Try to make the file public

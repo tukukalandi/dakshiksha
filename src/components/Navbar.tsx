@@ -339,7 +339,7 @@ export function Navbar() {
                 <input
                   type="text"
                   placeholder="Search resources..."
-                  value={searchQuery}
+                  value={searchQuery || ''}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setShowSearchPreview(true);

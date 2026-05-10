@@ -195,8 +195,16 @@ export function InternalPortal() {
         const uploadData = new FormData();
         uploadData.append('file', selectedFile);
 
+        const token = localStorage.getItem('google_access_token');
+        if (!token) {
+          throw new Error('Please sign in again to obtain a Google Drive access token.');
+        }
+
         const res = await fetch('/api/upload', {
           method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           body: uploadData
         });
 
@@ -206,7 +214,7 @@ export function InternalPortal() {
           data = JSON.parse(resText);
         } catch (e) {
           console.error('Server HTML error response:', resText.substring(0, 500));
-          throw new Error('Server returned invalid response (HTML)');
+          throw new Error('Server returned invalid response (HTML)', { cause: e });
         }
         
         if (!res.ok) {
@@ -442,7 +450,7 @@ export function InternalPortal() {
               <input 
                 type="text"
                 placeholder="Search repository..."
-                value={searchQuery}
+                value={searchQuery || ''}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-slate-50 border-2 border-black font-mono text-xs focus:ring-0 focus:bg-white transition-colors"
               />

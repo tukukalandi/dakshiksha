@@ -149,7 +149,7 @@ export function PublicPortal() {
               <input 
                 type="text"
                 placeholder={selectedSubType ? "Search documents..." : "Search categories..."}
-                value={searchQuery}
+                value={searchQuery || ''}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm"
               />
