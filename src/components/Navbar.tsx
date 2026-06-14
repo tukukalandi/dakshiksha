@@ -466,15 +466,6 @@ export function Navbar() {
           <div className="flex items-center justify-between h-12">
             <div className="hidden md:flex items-center gap-10 text-[13px] font-bold text-white">
               <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">HOME</Link>
-              <Link to="/service-requests" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">SERVICE REQUEST</Link>
-              <a 
-                href="https://app.indiapost.gov.in/employeeportal" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-postal-yellow transition-colors tracking-widest uppercase"
-              >
-                INTERNAL SITE
-              </a>
               
               <div className="relative group h-12 flex items-center">
                 <button className="hover:text-postal-yellow transition-colors flex items-center gap-1 tracking-widest uppercase">
@@ -551,15 +542,6 @@ export function Navbar() {
               </Link>
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">HOME</Link>
               <Link to="/my-branch-portal" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">MY BRANCH PORTAL</Link>
-              <a 
-                href="https://app.indiapost.gov.in/employeeportal" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block py-2 font-bold text-slate-700 border-b border-slate-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                APT 2.0
-              </a>
               
               <div className="py-2">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Others</p>
