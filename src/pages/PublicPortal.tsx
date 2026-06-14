@@ -7,7 +7,7 @@ import {
   FileText, ExternalLink, ChevronRight, 
   ArrowLeft, Search, Filter, BookOpen,
   Download, Clock, Tag, LayoutPanelLeft,
-  FileBadge, FileJson, FileType
+  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -15,12 +15,13 @@ import { cn } from '../lib/utils';
 function getFileTypeInfo(url: string) {
   const extension = url.split(/[#?]/)[0].split('.').pop()?.toLowerCase();
   
-  if (extension === 'pdf') return { label: 'PDF DOCUMENT', color: 'text-red-600', bgColor: 'bg-red-50' };
-  if (['doc', 'docx'].includes(extension || '')) return { label: 'WORD DOC', color: 'text-blue-600', bgColor: 'bg-blue-50' };
-  if (['xls', 'xlsx', 'csv'].includes(extension || '')) return { label: 'SPREADSHEET', color: 'text-emerald-600', bgColor: 'bg-emerald-50' };
-  if (url.includes('drive.google.com')) return { label: 'GOOGLE DRIVE', color: 'text-indigo-600', bgColor: 'bg-indigo-50' };
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return { label: 'YOUTUBE VIDEO', color: 'text-red-500', bgColor: 'bg-red-50', icon: Youtube };
+  if (extension === 'pdf') return { label: 'PDF DOCUMENT', color: 'text-red-600', bgColor: 'bg-red-50', icon: FileText };
+  if (['doc', 'docx'].includes(extension || '')) return { label: 'WORD DOC', color: 'text-blue-600', bgColor: 'bg-blue-50', icon: FileText };
+  if (['xls', 'xlsx', 'csv'].includes(extension || '')) return { label: 'SPREADSHEET', color: 'text-emerald-600', bgColor: 'bg-emerald-50', icon: FileText };
+  if (url.includes('drive.google.com')) return { label: 'GOOGLE DRIVE', color: 'text-indigo-600', bgColor: 'bg-indigo-50', icon: FileText };
   
-  return { label: 'RESOURCE FILE', color: 'text-postal-red', bgColor: 'bg-postal-red/5' };
+  return { label: 'EXTERNAL LINK', color: 'text-postal-red', bgColor: 'bg-postal-red/5', icon: LinkIcon };
 }
 
 interface PortalDoc {
@@ -117,10 +118,10 @@ export function PublicPortal() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <button 
-              onClick={() => selectedSubType ? setSelectedSubType(null) : undefined}
+              onClick={() => selectedSubType !== null ? setSelectedSubType(null) : undefined}
               className={cn(
                 "inline-flex items-center text-sm transition-colors group",
-                selectedSubType ? "text-postal-red font-bold hover:underline" : "text-slate-500 hover:text-postal-red"
+                selectedSubType !== null ? "text-postal-red font-bold hover:underline" : "text-slate-500 hover:text-postal-red"
               )}
             >
               <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -234,7 +235,7 @@ export function PublicPortal() {
                       {/* Left Icon Section */}
                       <div className={cn("w-24 sm:w-28 flex items-center justify-center shrink-0 border-r border-white/10", color.dark)}>
                         <div className="bg-white/95 p-4 rounded-full shadow-lg text-slate-700 transform group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                          <FileText size={28} />
+                          <typeInfo.icon size={28} />
                         </div>
                       </div>
 

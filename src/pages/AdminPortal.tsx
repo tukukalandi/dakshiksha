@@ -52,8 +52,10 @@ export function AdminPortal() {
     subType: '',
     fileName: '',
     description: '',
+    externalLink: '',
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadMode, setUploadMode] = useState<'file' | 'link'>('file');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState('Documents');
@@ -128,20 +130,32 @@ export function AdminPortal() {
 
   const handleDocSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!docFormData.type || !docFormData.fileName || !selectedFile) {
-       setStatusMessage({ type: 'error', text: 'Please fill all required fields and select a file.' });
+    if (!docFormData.type || !docFormData.fileName) {
+       setStatusMessage({ type: 'error', text: 'Please fill all required fields.' });
+       return;
+    }
+    if (uploadMode === 'file' && !selectedFile) {
+       setStatusMessage({ type: 'error', text: 'Please select a file.' });
+       return;
+    }
+    if (uploadMode === 'link' && !docFormData.externalLink) {
+       setStatusMessage({ type: 'error', text: 'Please provide a valid link.' });
        return;
     }
 
     setLoading(true);
-    setStatusMessage({ type: 'success', text: 'Uploading file to Drive...' });
+    setStatusMessage({ type: 'success', text: uploadMode === 'file' ? 'Uploading file to Drive...' : 'Saving link...' });
 
     try {
-      const token = getToken();
-      if (!token) {
-        setStatusMessage({ type: 'error', text: 'Google Drive authentication missing. Please click "Connect to Drive" in the sidebar.' });
-        return;
-      }
+      let finalLink = docFormData.externalLink;
+
+      if (uploadMode === 'file' && selectedFile) {
+        const token = getToken();
+        if (!token) {
+          setStatusMessage({ type: 'error', text: 'Google Drive authentication missing. Please click "Connect to Drive" in the sidebar.' });
+          setLoading(false);
+          return;
+        }
 
       const folderId = '1wS6ZUxT4kKolf6FJOMNvntTYY7BANxGe'; // User's requested Google Drive Folder ID
 
@@ -204,7 +218,8 @@ export function AdminPortal() {
       if (!getRes.ok) throw new Error(`Failed to retrieve file link.`);
       
       const finalData = await getRes.json();
-      const finalLink = finalData.webViewLink;
+      finalLink = finalData.webViewLink;
+    }
 
       await addDoc(collection(db, 'portal_documents'), {
         category: docFormData.type,
@@ -218,7 +233,7 @@ export function AdminPortal() {
       });
 
       setStatusMessage({ type: 'success', text: 'Document uploaded successfully!' });
-      setDocFormData({ type: CATEGORIES[0], subType: '', fileName: '', description: '' });
+      setDocFormData({ type: CATEGORIES[0], subType: '', fileName: '', description: '', externalLink: '' });
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error: any) {
@@ -359,8 +374,8 @@ export function AdminPortal() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">PDF Link / Document Link (Optional)</label>
-                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="https://drive.google.com/... or other link" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">External Link (Google Drive, YouTube, URL) *</label>
+                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="https://drive.google.com/..., https://youtube.com/..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Flipbook Link (Optional)</label>
@@ -487,28 +502,61 @@ export function AdminPortal() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Upload File *</label>
-                    <div className="flex items-center justify-center w-full">
-                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
-                          <p className="mb-2 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                          <p className="text-xs text-slate-400">PDF, XLS, DOC, PPT (MAX. 50MB)</p>
-                        </div>
-                        <input 
-                          type="file" 
-                          ref={fileInputRef}
-                          className="hidden" 
-                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                          required
-                        />
-                      </label>
+                  <div className="space-y-4">
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('file')}
+                        className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'file' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        Upload to Drive
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('link')}
+                        className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'link' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        External Link
+                      </button>
                     </div>
-                    {selectedFile && (
-                      <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 mt-2">
-                        <CheckCircle2 size={16} /> {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                      </p>
+
+                    {uploadMode === 'file' ? (
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Upload File *</label>
+                        <div className="flex items-center justify-center w-full">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
+                              <p className="mb-2 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                              <p className="text-xs text-slate-400">PDF, XLS, DOC, PPT (MAX. 50MB)</p>
+                            </div>
+                            <input 
+                              type="file" 
+                              ref={fileInputRef}
+                              className="hidden" 
+                              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                              required={uploadMode === 'file'}
+                            />
+                          </label>
+                        </div>
+                        {selectedFile && (
+                          <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 mt-2">
+                            <CheckCircle2 size={16} /> {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">External Link *</label>
+                        <input 
+                          type="url"
+                          value={docFormData.externalLink}
+                          onChange={(e) => setDocFormData({...docFormData, externalLink: e.target.value})}
+                          placeholder="e.g. YouTube Video, Google Drive Share Link, etc."
+                          className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
+                          required={uploadMode === 'link'}
+                        />
+                      </div>
                     )}
                   </div>
 

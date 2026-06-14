@@ -339,7 +339,16 @@ export function Home() {
                 </div>
               </div>
               <div className="p-2 gap-1 grid grid-cols-1 sm:grid-cols-2">
-                {homepageDocs.map((doc, idx) => (
+                {homepageDocs.map((doc, idx) => {
+                  let docTypeLabel = "Document";
+                  let Icon = FileText;
+                  const url = (doc.link || "").toLowerCase();
+                  if (url.includes('youtube.com') || url.includes('youtu.be')) { docTypeLabel = "YouTube Video"; Icon = Youtube; }
+                  else if (url.includes('drive.google.com')) { docTypeLabel = "Google Drive"; }
+                  else if (url.includes('.pdf')) { docTypeLabel = "PDF Document"; }
+                  else if (url.includes('.doc') || url.includes('.docx')) { docTypeLabel = "Word Document"; }
+
+                  return (
                   <a
                     key={doc.id || idx}
                     href={doc.link}
@@ -348,21 +357,21 @@ export function Home() {
                     className="p-3 hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-lg flex items-start gap-4 group transition-all"
                   >
                     <div className="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-orange-100 transition-all">
-                      <FileText size={20} />
+                      <Icon size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-slate-800 text-sm group-hover:text-postal-red truncate transition-colors">
                         {doc.name}
                       </h3>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs font-semibold text-slate-400">PDF Document</span>
+                        <span className="text-xs font-semibold text-slate-400">{docTypeLabel}</span>
                         <div className="flex items-center text-postal-blue text-xs font-bold gap-1 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
                           View <ExternalLink size={12} />
                         </div>
                       </div>
                     </div>
                   </a>
-                ))}
+                )})}
               </div>
             </div>
           )}
