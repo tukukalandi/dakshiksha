@@ -44,6 +44,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/api/drive-config', (req, res) => {
+  res.json({ folderId: process.env.GOOGLE_DRIVE_FOLDER_ID || null });
+});
+
 // File upload setup
 const upload = multer({
   limits: {
@@ -64,7 +68,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(500).json({ error: 'Google Drive credentials not configured' });
     }
 
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers['x-google-auth'] as string;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Missing or invalid Authorization header' });
     }

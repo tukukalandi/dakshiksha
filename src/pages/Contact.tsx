@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Contact() {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+
   const contactInfo = [
     {
       icon: Mail,
@@ -89,13 +91,15 @@ export function Contact() {
                   <h3 className="text-xl font-bold">Send us a Message</h3>
                   <p className="text-sm opacity-80">We'll get back to you as soon as possible.</p>
                 </div>
-                <form className="p-8 space-y-6">
+                <form onSubmit={(e) => e.preventDefault()} className="p-8 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700">Full Name</label>
                       <input 
                         type="text" 
                         placeholder="John Doe"
+                        value={formData.name || ''}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-postal-red focus:ring-2 focus:ring-postal-red/20 outline-none transition-all"
                       />
                     </div>
@@ -104,6 +108,8 @@ export function Contact() {
                       <input 
                         type="email" 
                         placeholder="john@example.com"
+                        value={formData.email || ''}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-postal-red focus:ring-2 focus:ring-postal-red/20 outline-none transition-all"
                       />
                     </div>
@@ -113,6 +119,8 @@ export function Contact() {
                     <input 
                       type="text" 
                       placeholder="How can we help?"
+                      value={formData.subject || ''}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-postal-red focus:ring-2 focus:ring-postal-red/20 outline-none transition-all"
                     />
                   </div>
@@ -121,11 +129,13 @@ export function Contact() {
                     <textarea 
                       rows={4}
                       placeholder="Your message here..."
+                      value={formData.message || ''}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-postal-red focus:ring-2 focus:ring-postal-red/20 outline-none transition-all resize-none"
                     ></textarea>
                   </div>
                   <button 
-                    type="button"
+                    type="submit"
                     className="w-full md:w-auto px-8 py-4 bg-postal-red text-white font-bold rounded-lg shadow-lg shadow-postal-red/30 hover:bg-red-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
                   >
                     <Send size={18} />

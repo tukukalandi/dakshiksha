@@ -17,9 +17,12 @@ interface AuthContextType {
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
+  getToken: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+let cachedAccessToken: string | null = null;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -51,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         setProfile(null);
+        cachedAccessToken = null;
       }
       setLoading(false);
     });
@@ -62,9 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       provider.addScope('https://www.googleapis.com/auth/drive.file');
+      
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (credential?.accessToken) {
+        cachedAccessToken = credential.accessToken;
+        
+        // Also update the local storage token used temporarily (we'll migrate this approach out)
         localStorage.setItem('google_access_token', credential.accessToken);
       }
     } catch (error: any) {
@@ -80,14 +88,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    cachedAccessToken = null;
     localStorage.removeItem('google_access_token');
     await signOut(auth);
   };
 
+  const getToken = () => cachedAccessToken || localStorage.getItem('google_access_token');
+
   const isAdmin = profile?.role === 'admin' || user?.email === "tukukalandi@gmail.com";
 
   return (
-    <AuthContext.Provider value={{ user, profile, isAdmin, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, profile, isAdmin, loading, login, logout, getToken }}>
       {children}
     </AuthContext.Provider>
   );

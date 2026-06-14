@@ -34,14 +34,15 @@ interface PortalDoc {
 }
 
 const CATEGORY_MAP: Record<string, string> = {
-  'mts': 'GDS to MTS',
-  'postman': 'Postman Exam',
-  'pa': 'PA/SA Exam',
-  'lgo': 'LGO Exam',
-  'inspector': 'IP Exam',
-  'po-guide': 'PO Guide',
-  'manuals': 'Postal Manuals',
-  'accountant': 'Accountant Exam'
+  'mts': 'GDS TO MTS',
+  'postman': 'POSTMAN EXAM',
+  'pa': 'PA/SA EXAM',
+  'lgo': 'LGO EXAM',
+  'inspector': 'IP EXAM',
+  'po-guide': 'PO GUIDE',
+  'manuals': 'POSTAL MANUALS',
+  'accountant': 'ACCOUNTANT EXAM',
+  'others': 'OTHERS'
 };
 
 const CARD_COLORS = [
@@ -123,7 +124,7 @@ export function PublicPortal() {
               )}
             >
               <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-              {selectedSubType ? "Back to Sub-Types" : <Link to="/">Back to Home</Link>}
+              {selectedSubType !== null ? "Back to Sub-Types" : <Link to="/">Back to Home</Link>}
             </button>
           </div>
           
@@ -131,13 +132,13 @@ export function PublicPortal() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-3 py-1 bg-postal-red/10 text-postal-red text-xs font-bold rounded-full uppercase tracking-wider">
-                  {selectedSubType ? "Documents" : "Resource Portal"}
+                  {selectedSubType !== null ? "Documents" : "Resource Portal"}
                 </span>
               </div>
               <h1 className="text-4xl font-display font-bold text-slate-900 leading-tight">
-                {selectedSubType ? selectedSubType : categoryName}
+                {selectedSubType !== null ? (selectedSubType || 'Documents') : categoryName}
               </h1>
-              {!selectedSubType && (
+              {selectedSubType === null && (
                 <p className="text-slate-600 mt-2 max-w-2xl">
                   Select a category below to explore curated study materials for the {categoryName}.
                 </p>
@@ -148,7 +149,7 @@ export function PublicPortal() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
                 type="text"
-                placeholder={selectedSubType ? "Search documents..." : "Search categories..."}
+                placeholder={selectedSubType !== null ? "Search documents..." : "Search categories..."}
                 value={searchQuery || ''}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm"
@@ -160,7 +161,7 @@ export function PublicPortal() {
         {/* Content */}
         {subTypes.length > 0 ? (
           <AnimatePresence mode="wait">
-            {!selectedSubType ? (
+            {selectedSubType === null ? (
               // Sub-Type Cards Grid
               <motion.div 
                 key="subtypes"
@@ -190,7 +191,7 @@ export function PublicPortal() {
                       </div>
                       <div className="flex-1 p-5 flex flex-col justify-center min-w-0">
                         <h3 className="text-white font-black text-lg uppercase tracking-tight truncate leading-tight group-hover:underline decoration-white/30 underline-offset-2">
-                          {subType}
+                          {subType || 'General Documents'}
                         </h3>
                         <p className="text-white/70 text-xs font-bold uppercase tracking-[0.15em] mt-2 opacity-90">
                           {groupedDocs[subType].length} Items in Category

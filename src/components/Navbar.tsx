@@ -465,17 +465,15 @@ export function Navbar() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12">
             <div className="hidden md:flex items-center gap-10 text-[13px] font-bold text-white">
-              <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest">HOME</Link>
-              <Link to="/my-branch-portal" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">MY BRANCH PORTAL</Link>
-              <Link to="/rules" className="hover:text-postal-yellow transition-colors tracking-widest">RULES</Link>
-              <Link to="/exams/po-guide" className="hover:text-postal-yellow transition-colors tracking-widest">GUIDES</Link>
+              <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">HOME</Link>
+              <Link to="/service-requests" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">SERVICE REQUEST</Link>
               <a 
                 href="https://app.indiapost.gov.in/employeeportal" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-postal-yellow transition-colors tracking-widest uppercase"
               >
-                APT 2.0
+                INTERNAL SITE
               </a>
               
               <div className="relative group h-12 flex items-center">
@@ -524,16 +522,15 @@ export function Navbar() {
                   >
                     Dhenkanal RS SO
                   </a>
-                  {isAdmin && (
-                    <Link to="/internal-portal" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase">
-                      Internal Portal
-                    </Link>
-                  )}
                   <div className="h-[1px] bg-slate-100 my-1" />
                   <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">ABOUT US</Link>
                   <Link to="/contact" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">CONTACT</Link>
                 </div>
               </div>
+              
+              {isAdmin && (
+                <Link to="/admin-portal" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">ADMIN PORTAL</Link>
+              )}
             </div>
 
             <button
@@ -554,8 +551,6 @@ export function Navbar() {
               </Link>
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">HOME</Link>
               <Link to="/my-branch-portal" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">MY BRANCH PORTAL</Link>
-              <Link to="/rules" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">RULES</Link>
-              <Link to="/exams/po-guide" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">GUIDES</Link>
               <a 
                 href="https://app.indiapost.gov.in/employeeportal" 
                 target="_blank" 

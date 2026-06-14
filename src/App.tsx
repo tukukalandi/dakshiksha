@@ -22,7 +22,7 @@ import { AccountantExam } from './pages/AccountantExam';
 import { SavingsBranch } from './pages/SavingsBranch';
 import { OtherBranch } from './pages/OtherBranch';
 import { SearchResults } from './pages/SearchResults';
-import { InternalPortal } from './pages/InternalPortal';
+import { AdminPortal } from './pages/AdminPortal';
 import { PublicPortal } from './pages/PublicPortal';
 import { MyBranchPortal } from './pages/MyBranchPortal';
 
@@ -38,7 +38,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/search" element={<SearchResults />} />
-              <Route path="/internal-portal" element={<InternalPortal />} />
+              <Route path="/admin-portal" element={<AdminPortal />} />
               <Route path="/portal/:categorySlug" element={<PublicPortal />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/my-branch-portal" element={<MyBranchPortal />} />

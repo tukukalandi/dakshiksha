@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { cn } from '../lib/utils';
 import { 
   ArrowRight, BookOpen, Video, PenTool, Trophy, ChevronRight, 
@@ -8,7 +10,7 @@ import {
   ExternalLink, FileText, LayoutGrid, Search, Users, Book,
   Globe, Mail, Phone, MapPin, Facebook, Twitter, Youtube, Instagram,
   Briefcase, Stamp, Package, MoreHorizontal, Calculator,
-  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send
+  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge
 } from 'lucide-react';
 
 const SLIDES = [
@@ -57,14 +59,15 @@ const SLIDES = [
 ];
 
 const QUICK_LINKS = [
-  { icon: BookOpen, title: "GDS to MTS", desc: "Study material for MTS recruitment", link: "/portal/mts" },
-  { icon: GraduationCap, title: "Postman Exam", desc: "Resources for Postman/Mail Guard", link: "/portal/postman" },
-  { icon: Trophy, title: "PA/SA Exam", desc: "Postal & Sorting Assistant material", link: "/portal/pa" },
-  { icon: LayoutGrid, title: "LGO Exam", desc: "Lower Grade Official promotion", link: "/portal/lgo" },
-  { icon: Newspaper, title: "IP Exam", desc: "Inspector Posts preparation", link: "/portal/inspector" },
-  { icon: Book, title: "PO Guide", desc: "Post Office Guide Part I & II", link: "/portal/po-guide" },
-  { icon: FileText, title: "Postal Manuals", desc: "Volume V, VI, and VII resources", link: "/portal/manuals" },
-  { icon: Calculator, title: "Accountant Exam", desc: "PO Accountant Exam resources", link: "/portal/accountant" },
+  { icon: BookOpen, title: "GDS TO MTS", desc: "Study material for MTS recruitment", link: "/portal/mts" },
+  { icon: GraduationCap, title: "POSTMAN EXAM", desc: "Resources for Postman/Mail Guard", link: "/portal/postman" },
+  { icon: Trophy, title: "PA/SA EXAM", desc: "Postal & Sorting Assistant material", link: "/portal/pa" },
+  { icon: LayoutGrid, title: "LGO EXAM", desc: "Lower Grade Official promotion", link: "/portal/lgo" },
+  { icon: Newspaper, title: "IP EXAM", desc: "Inspector Posts preparation", link: "/portal/inspector" },
+  { icon: Book, title: "PO GUIDE", desc: "Post Office Guide Part I & II", link: "/portal/po-guide" },
+  { icon: FileText, title: "POSTAL MANUALS", desc: "Volume V, VI, and VII resources", link: "/portal/manuals" },
+  { icon: Calculator, title: "ACCOUNTANT EXAM", desc: "PO Accountant Exam resources", link: "/portal/accountant" },
+  { icon: MoreHorizontal, title: "OTHERS", desc: "Miscellaneous portal documents", link: "/portal/others" },
 ];
 
 const BRANCHES = [
@@ -104,13 +107,28 @@ const CARD_COLORS = [
 
 export function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [homepageDocs, setHomepageDocs] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
     }, 5000);
-    return () => clearInterval(timer);
+
+    const q = query(
+      collection(db, 'portal_documents'), 
+      where('category', '==', 'Homepage Docs'),
+      orderBy('createdAt', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setHomepageDocs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    return () => {
+      clearInterval(timer);
+      unsubscribe();
+    };
   }, []);
 
   return (
@@ -309,6 +327,46 @@ export function Home() {
 
         {/* Right: Featured Sections */}
         <div className="lg:col-span-8 space-y-12">
+          
+          {/* Important Documents Bulletin */}
+          {homepageDocs.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="bg-postal-dark-maroon text-postal-yellow p-4 px-6 flex items-center gap-3">
+                <FileBadge size={24} />
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-wider">Important Documents</h2>
+                  <p className="text-xs text-white/80 font-medium">Click to view or download files</p>
+                </div>
+              </div>
+              <div className="p-2 gap-1 grid grid-cols-1 sm:grid-cols-2">
+                {homepageDocs.map((doc, idx) => (
+                  <a
+                    key={doc.id || idx}
+                    href={doc.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-lg flex items-start gap-4 group transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-orange-100 transition-all">
+                      <FileText size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-slate-800 text-sm group-hover:text-postal-red truncate transition-colors">
+                        {doc.name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs font-semibold text-slate-400">PDF Document</span>
+                        <div className="flex items-center text-postal-blue text-xs font-bold gap-1 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
+                          View <ExternalLink size={12} />
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Featured Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-sm shadow-sm border border-slate-100 group cursor-pointer">
