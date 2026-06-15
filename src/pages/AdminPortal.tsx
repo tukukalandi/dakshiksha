@@ -398,7 +398,7 @@ export function AdminPortal() {
 
               <div>
                 <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Live Homepage Items ({documents.length})</h2>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                   <AnimatePresence>
                     {documents.map((doc) => (
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
@@ -409,11 +409,11 @@ export function AdminPortal() {
                             {doc.isNew && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2.5 py-1 rounded-md uppercase tracking-wider animate-pulse">NEW!</span>}
                           </div>
                         </div>
-                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                        <button onClick={() => handleDelete(doc.id)} className="self-end p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {documents.length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No documents published yet.</div>}
+                  {documents.length === 0 && <div className="text-center w-full p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No documents published yet.</div>}
                 </div>
               </div>
             </div>
