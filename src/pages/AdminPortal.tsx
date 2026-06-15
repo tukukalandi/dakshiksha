@@ -4,10 +4,11 @@ import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc, where, Timestamp } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
+import ReactPlayer from 'react-player';
 import { 
   LayoutDashboard, FileText, FileSearch, 
   ListOrdered, Megaphone, ClipboardList, 
-  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon
+  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video
 } from 'lucide-react';
 
 interface HomepageDoc {
@@ -283,6 +284,7 @@ export function AdminPortal() {
     { name: 'Announcements', icon: Megaphone },
     { name: 'Service Requests', icon: ClipboardList },
     { name: 'Photo Gallery', icon: ImageIcon },
+    { name: 'Video Gallery', icon: Video },
     { name: 'Hero Slider', icon: Images },
     { name: 'Forms', icon: ListOrdered },
   ];
@@ -798,6 +800,88 @@ export function AdminPortal() {
                     ))}
                   </AnimatePresence>
                   {portalDocs.filter(d => d.category === 'Announcements').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No announcements published yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Video Gallery' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">VIDEO GALLERY</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Upload video links (YouTube, Facebook, Twitter, Instagram) for the homepage Video Gallery.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Video Link
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.pdfLink) return;
+                  setLoading(true);
+                  try {
+                    await addDoc(collection(db, 'portal_documents'), {
+                      category: 'Video Gallery',
+                      name: formData.title || '',
+                      link: formData.pdfLink, // This will store the video URL
+                      createdBy: user?.uid,
+                      createdAt: serverTimestamp(),
+                      updatedAt: serverTimestamp()
+                    });
+                    setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
+                    setStatusMessage({ type: 'success', text: 'Video link added successfully.' });
+                  } catch (error) {
+                    console.error("Save Error:", error);
+                    setStatusMessage({ type: 'error', text: 'Failed to add video link.' });
+                  } finally {
+                    setLoading(false);
+                    setTimeout(() => setStatusMessage(null), 3000);
+                  }
+                }}>
+                  {statusMessage && (
+                    <div className={`p-4 rounded-xl mb-6 text-sm flex items-start gap-3 ${statusMessage.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                      {statusMessage.type === 'success' ? <CheckCircle2 size={18} className="mt-0.5" /> : <AlertCircle size={18} className="mt-0.5" />}
+                      <span className="font-medium">{statusMessage.text}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="Paste Video URL (YouTube, Facebook, etc.)..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter video caption (Optional)..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                  </div>
+
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Add Video</>}
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Gallery Videos ({portalDocs.filter(d => d.category === 'Video Gallery').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Video Gallery').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0 w-full">
+                          <div className="w-full h-32 bg-slate-100 rounded-lg overflow-hidden mb-3 relative">
+                             {/* @ts-ignore */}
+                             <ReactPlayer url={doc.link} width="100%" height="100%" controls={true} />
+                          </div>
+                          {doc.name && <h3 className="font-bold text-slate-800 text-sm mb-1">{doc.name}</h3>}
+                          {doc.link && (
+                            <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                              <LinkIcon size={12} /> View Link
+                            </a>
+                          )}
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Video Gallery').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No videos added yet.</div>}
                 </div>
               </div>
             </div>

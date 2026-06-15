@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { cn } from '../lib/utils';
+import ReactPlayer from 'react-player';
 import { 
   ArrowRight, BookOpen, Video, PenTool, Trophy, ChevronRight, 
   Download, GraduationCap, Bell, Newspaper, Calendar, Info, 
@@ -112,6 +113,7 @@ export function Home() {
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [photoGallery, setPhotoGallery] = useState<any[]>([]);
+  const [videoGallery, setVideoGallery] = useState<any[]>([]);
   const [activeNoticeTab, setActiveNoticeTab] = useState('NOTICE');
   const navigate = useNavigate();
 
@@ -178,6 +180,17 @@ export function Home() {
       setPhotoGallery(sortedDocs);
     });
 
+    const qVideoGallery = query(
+      collection(db, 'portal_documents'),
+      where('category', '==', 'Video Gallery')
+    );
+    const unsubscribeVideoGallery = onSnapshot(qVideoGallery, (snapshot) => {
+      const sortedDocs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      setVideoGallery(sortedDocs);
+    });
+
     return () => {
       clearInterval(timer);
       unsubscribe();
@@ -185,6 +198,7 @@ export function Home() {
       unsubscribeAnnouncements();
       unsubscribeHero();
       unsubscribeGallery();
+      unsubscribeVideoGallery();
     };
   }, [heroSlides.length]);
 
@@ -493,6 +507,42 @@ export function Home() {
                   {photo.name && (
                     <p className="text-sm font-medium text-slate-700 text-center line-clamp-2">
                       {photo.name}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Gallery Section */}
+      {videoGallery.length > 0 && (
+        <div className="bg-[#f8f9fa] py-16 border-t border-slate-200">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8 pb-2 border-b-2 border-postal-red">
+              <h2 className="text-2xl font-bold text-postal-red flex items-center gap-2">
+                <Video size={24} /> Video Gallery
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {videoGallery.map((video) => (
+                <div key={video.id} className="group">
+                  <div className="relative rounded-xl overflow-hidden bg-white shadow-sm border border-slate-200 mb-4 transition-all duration-300 hover:shadow-md hover:border-postal-red/30">
+                    <div className="aspect-video relative bg-slate-900">
+                      {/* @ts-ignore */}
+                      <ReactPlayer 
+                        url={video.link} 
+                        width="100%" 
+                        height="100%" 
+                        controls={true}
+                        className="absolute top-0 left-0"
+                      />
+                    </div>
+                  </div>
+                  {video.name && (
+                    <p className="text-sm font-bold text-slate-800 line-clamp-2 px-1">
+                      {video.name}
                     </p>
                   )}
                 </div>
