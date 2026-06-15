@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Search, Menu, X, ChevronRight, Globe, Type, Eye, 
+  Search, Menu, X, ChevronRight, ChevronDown, Globe, Type, Eye, 
   Mail, Briefcase, Stamp, Package, Users, MoreHorizontal,
   UserCircle, FileText, Download, Calendar, ArrowLeft,
-  GraduationCap, Book, BookOpen, LayoutGrid
+  GraduationCap, Book, BookOpen, LayoutGrid, Clock, Moon
 } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -24,8 +24,16 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('English');
+  const [currentLang, setCurrentLang] = useState('Select Language');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -36,6 +44,7 @@ export function Navbar() {
     { code: 'ta', name: 'Tamil' },
     { code: 'ur', name: 'Urdu' },
     { code: 'gu', name: 'Gujarati' },
+    { code: 'or', name: 'Odia' },
   ];
 
   const handleLanguageChange = (langCode: string, langName: string) => {
@@ -201,37 +210,71 @@ export function Navbar() {
   return (
     <header className="w-full">
       {/* Top Accessibility Bar (Language Bar) */}
-      <div className="bg-postal-dark-maroon border-b border-white/10 py-1 text-[11px] font-medium text-white">
-        <div className="mx-auto max-w-7xl flex items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="relative">
-            <button 
-              className="hover:text-postal-yellow flex items-center gap-1"
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-            >
-              <Globe size={12} /> {currentLang}
-            </button>
-            {isLanguageMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-sm shadow-lg z-50 py-1 min-w-[120px]">
-                {languages.map(lang => (
-                  <button
-                    key={lang.code}
-                    className="w-full text-left px-3 py-1.5 text-[11px] hover:bg-slate-50 hover:text-postal-red transition-colors"
-                    onClick={() => handleLanguageChange(lang.code, lang.name)}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
+      <div className="bg-postal-dark-maroon border-b border-white/10 py-1.5 text-[11px] font-medium text-white">
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 px-4 sm:px-6 lg:px-8">
+          
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 w-full md:w-auto">
+            <div className="flex items-center gap-2">
+              <Globe size={12} className="text-white/80" />
+              <span className="text-white/80 uppercase tracking-widest text-[10px]">LANGUAGE:</span>
+              <div className="relative">
+                <button 
+                  className="bg-black/20 hover:bg-black/30 border border-white/20 text-white flex items-center justify-between gap-2 px-2 py-0.5 rounded text-[11px] min-w-[120px] transition-colors"
+                  onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+                >
+                  <span>{currentLang}</span>
+                  <ChevronDown size={12} className={`transform transition-transform ${isLanguageMenuOpen ? 'rotate-180' : 'rotate-0'}`} />
+                </button>
+                {isLanguageMenuOpen && (
+                  <div className="absolute left-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-sm shadow-lg z-50 py-1 min-w-full">
+                    {languages.map(lang => (
+                      <button
+                        key={lang.code}
+                        className="w-full text-left px-3 py-1 text-[11px] hover:bg-slate-50 hover:text-postal-red transition-colors"
+                        onClick={() => handleLanguageChange(lang.code, lang.name)}
+                      >
+                        {lang.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
+            <div className="hidden md:block h-3 w-[1px] bg-white/20" />
+
+            <div className="flex items-center gap-4 text-white/90">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={12} className="text-postal-yellow" />
+                <span>{currentTime.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock size={12} className="text-postal-yellow" />
+                <span>{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase()}</span>
+              </div>
+            </div>
           </div>
-          <button className="hover:text-postal-yellow flex items-center gap-1">
-            <Type size={12} /> Text Size
-          </button>
-          <button className="hover:text-postal-yellow flex items-center gap-1">
-            <Eye size={12} /> Contrast
-          </button>
-          <div className="h-3 w-[1px] bg-white/30 mx-1" />
-          <span>{new Date().toLocaleDateString()}</span>
+
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full md:w-auto text-white/90 text-[10px] font-bold">
+            <div className="flex items-center gap-2">
+              <button className="hover:text-postal-yellow px-1">A-</button>
+              <button className="hover:text-postal-yellow px-1">A</button>
+              <button className="hover:text-postal-yellow px-1">A+</button>
+            </div>
+            
+            <div className="h-3 w-[1px] bg-white/20" />
+            
+            <button className="hover:text-postal-yellow uppercase tracking-widest">
+              SCREEN READER
+            </button>
+
+            <div className="h-3 w-[1px] bg-white/20" />
+
+            <button className="hover:text-postal-yellow flex items-center gap-1.5 uppercase tracking-widest">
+              <Moon size={10} /> DARK THEME
+            </button>
+          </div>
+
         </div>
       </div>
 

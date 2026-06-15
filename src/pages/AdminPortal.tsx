@@ -265,7 +265,7 @@ export function AdminPortal() {
         updatedAt: serverTimestamp()
       });
 
-      setFormData({ title: '', pdfLink: '', flipbookLink: '', isNew: false });
+      setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
       setStatusMessage({ type: 'success', text: 'Homepage doc published successfully.' });
     } catch (error) {
       console.error("Save Error:", error);
@@ -744,7 +744,7 @@ export function AdminPortal() {
                       createdAt: serverTimestamp(),
                       updatedAt: serverTimestamp()
                     });
-                    setFormData({ title: '', pdfLink: '', flipbookLink: '', isNew: false });
+                    setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
                     setStatusMessage({ type: 'success', text: 'Announcement published successfully.' });
                   } catch (error) {
                     console.error("Save Error:", error);
@@ -913,7 +913,7 @@ export function AdminPortal() {
                       createdAt: serverTimestamp(),
                       updatedAt: serverTimestamp()
                     });
-                    setFormData({ title: '', pdfLink: '', flipbookLink: '', isNew: false });
+                    setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
                     setStatusMessage({ type: 'success', text: 'Photo added successfully.' });
                   } catch (error) {
                     console.error("Save Error:", error);
