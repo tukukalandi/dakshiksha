@@ -282,7 +282,6 @@ export function AdminPortal() {
     { name: 'Homepage Docs', icon: FileText },
     { name: 'Notices & Circulars', icon: FileSearch },
     { name: 'Announcements', icon: Megaphone },
-    { name: 'Service Requests', icon: ClipboardList },
     { name: 'Photo Gallery', icon: ImageIcon },
     { name: 'Video Gallery', icon: Video },
     { name: 'Hero Slider', icon: Images },
