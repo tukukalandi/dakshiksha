@@ -58,12 +58,14 @@ service cloud.firestore {
     }
 
     function isValidPortalDoc(data) {
-      return data.keys().hasAll(['category', 'subType', 'name', 'link', 'createdBy', 'createdAt', 'updatedAt']) && (data.keys().size() >= 7 && data.keys().size() <= 8)
+      return data.keys().hasAll(['category', 'name', 'link', 'createdBy', 'createdAt', 'updatedAt']) && (data.keys().size() >= 6 && data.keys().size() <= 10)
         && data.category is string && data.category.size() <= 200
-        && data.subType is string && data.subType.size() <= 200
+        && (!('subType' in data) || (data.subType is string && data.subType.size() <= 200))
         && data.name is string && data.name.size() <= 1000
         && data.link is string && data.link.size() <= 5000
         && (!('description' in data) || (data.description is string && data.description.size() <= 5000))
+        && (!('flipbookLink' in data) || (data.flipbookLink is string && data.flipbookLink.size() <= 5000))
+        && (!('isNew' in data) || (data.isNew is bool))
         && data.createdBy == request.auth.uid
         && data.createdAt == request.time
         && data.updatedAt == request.time;
@@ -109,8 +111,7 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidPortalDoc(incoming());
       allow update: if isAdmin() && isValidPortalDoc(incoming()) && (
         // Action: Metadata update
-        incoming().diff(existing()).affectedKeys().hasOnly(['subType', 'name', 'description', 'link', 'updatedAt'])
-        || incoming().diff(existing()).affectedKeys().hasOnly(['category', 'subType', 'name', 'description', 'link', 'updatedAt'])
+        incoming().diff(existing()).affectedKeys().hasOnly(['category', 'subType', 'name', 'description', 'link', 'updatedAt', 'isNew', 'flipbookLink'])
       );
       allow delete: if isAdmin();
     }

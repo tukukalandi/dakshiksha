@@ -43,6 +43,7 @@ export function AdminPortal() {
   const [formData, setFormData] = useState({
     title: '',
     pdfLink: '',
+    description: '',
     flipbookLink: '',
     isNew: false
   });
@@ -53,6 +54,7 @@ export function AdminPortal() {
     fileName: '',
     description: '',
     externalLink: '',
+    isNew: false,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadMode, setUploadMode] = useState<'file' | 'link'>('file');
@@ -128,9 +130,10 @@ export function AdminPortal() {
     }
   };
 
-  const handleDocSubmit = async (e: React.FormEvent) => {
+  const handleDocSubmit = async (e: React.FormEvent, overrideType?: string) => {
     e.preventDefault();
-    if (!docFormData.type || !docFormData.fileName) {
+    const submitType = overrideType || docFormData.type;
+    if (!submitType || !docFormData.fileName) {
        setStatusMessage({ type: 'error', text: 'Please fill all required fields.' });
        return;
     }
@@ -222,10 +225,11 @@ export function AdminPortal() {
     }
 
       await addDoc(collection(db, 'portal_documents'), {
-        category: docFormData.type,
+        category: submitType,
         subType: docFormData.subType,
         name: docFormData.fileName,
         description: docFormData.description,
+        isNew: docFormData.isNew,
         link: finalLink,
         createdBy: user?.uid,
         createdAt: serverTimestamp(),
@@ -233,7 +237,7 @@ export function AdminPortal() {
       });
 
       setStatusMessage({ type: 'success', text: 'Document uploaded successfully!' });
-      setDocFormData({ type: CATEGORIES[0], subType: '', fileName: '', description: '', externalLink: '' });
+      setDocFormData({ type: CATEGORIES[0], subType: '', fileName: '', description: '', externalLink: '', isNew: false });
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error: any) {
@@ -276,7 +280,7 @@ export function AdminPortal() {
     { name: 'Documents', icon: FilePlus },
     { name: 'Homepage Docs', icon: FileText },
     { name: 'Notices & Circulars', icon: FileSearch },
-    { name: 'Latest News', icon: Megaphone },
+    { name: 'Announcements', icon: Megaphone },
     { name: 'Service Requests', icon: ClipboardList },
     { name: 'Photo Gallery', icon: ImageIcon },
     { name: 'Hero Slider', icon: Images },
@@ -601,6 +605,360 @@ export function AdminPortal() {
                     ))}
                   </AnimatePresence>
                   {portalDocs.length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No files uploaded yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Notices & Circulars' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">NOTICES & CIRCULARS</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Publish notices and circulars to the homepage bulletin board.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Notice
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  // Wrapper to set Category implicitly to "Notices & Circulars"
+                  await handleDocSubmit(e, 'Notices & Circulars');
+                }} className="space-y-6">
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Notice Sub-Category *</label>
+                    <select
+                      value={docFormData.subType || 'NOTICE'}
+                      onChange={(e) => setDocFormData({...docFormData, subType: e.target.value})}
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
+                    >
+                      <option value="NOTICE">NOTICE</option>
+                      <option value="ACCOMMODATION">ACCOMMODATION</option>
+                      <option value="CGHS">CGHS</option>
+                      <option value="PENSION/SALARY">PENSION/SALARY</option>
+                      <option value="MISCELLANEOUS">MISCELLANEOUS</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Notice Title *</label>
+                    <textarea 
+                      value={docFormData.fileName}
+                      onChange={(e) => setDocFormData({...docFormData, fileName: e.target.value})}
+                      placeholder="Enter the notice title..."
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none resize-none h-24"
+                      required
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-3 cursor-pointer mt-4">
+                    <input type="checkbox" checked={docFormData.isNew} onChange={(e) => setDocFormData({...docFormData, isNew: e.target.checked})} className="w-5 h-5 rounded border-slate-300 text-postal-red focus:ring-postal-red" />
+                    <span className="text-xs font-bold text-slate-600 uppercase">Highlight with animated "NEW!" badge</span>
+                  </label>
+
+                  <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                      <button type="button" onClick={() => setUploadMode('file')} className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'file' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}>Upload File</button>
+                      <button type="button" onClick={() => setUploadMode('link')} className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'link' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}>External Link</button>
+                    </div>
+
+                    {uploadMode === 'file' ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center w-full">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
+                              <p className="mb-2 text-sm text-slate-500">Click to upload or drag</p>
+                            </div>
+                            <input type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} required={uploadMode === 'file'} />
+                          </label>
+                        </div>
+                        {selectedFile && <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 mt-2"><CheckCircle2 size={16} /> {selectedFile.name}</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <input type="url" value={docFormData.externalLink} onChange={(e) => setDocFormData({...docFormData, externalLink: e.target.value})} placeholder="https://..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm" required={uploadMode === 'link'} />
+                      </div>
+                    )}
+                  </div>
+
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Publish Notice</>}
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Published Notices ({portalDocs.filter(d => d.category === 'Notices & Circulars').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Notices & Circulars').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-bold text-postal-blue bg-blue-50 px-2 py-1 rounded-md uppercase tracking-wider">{doc.subType || 'NOTICE'}</span>
+                            <span className="text-[10px] text-slate-400 font-medium">{doc.createdAt?.toDate().toLocaleDateString()}</span>
+                          </div>
+                          <h3 className="font-bold text-slate-800 text-base mb-2">{doc.name}</h3>
+                          <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                            <LinkIcon size={12} /> View File/Link
+                          </a>
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Notices & Circulars').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No notices published yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Announcements' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">ANNOUNCEMENTS</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Publish announcements to the homepage.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Announcement
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.title) return;
+                  setLoading(true);
+                  try {
+                    await addDoc(collection(db, 'portal_documents'), {
+                      category: 'Announcements',
+                      name: formData.title,
+                      link: formData.pdfLink,
+                      createdBy: user?.uid,
+                      createdAt: serverTimestamp(),
+                      updatedAt: serverTimestamp()
+                    });
+                    setFormData({ title: '', pdfLink: '', flipbookLink: '', isNew: false });
+                    setStatusMessage({ type: 'success', text: 'Announcement published successfully.' });
+                  } catch (error) {
+                    console.error("Save Error:", error);
+                    setStatusMessage({ type: 'error', text: 'Failed to publish announcement.' });
+                  } finally {
+                    setLoading(false);
+                  }
+                }} className="space-y-6">
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Announcement Text *</label>
+                    <textarea 
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      placeholder="Enter the announcement..."
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none resize-none h-24"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Link (Optional)</label>
+                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="https://..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                  </div>
+
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Publish Announcement</>}
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Published Announcements ({portalDocs.filter(d => d.category === 'Announcements').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Announcements').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] text-slate-400 font-medium">{doc.createdAt?.toDate().toLocaleDateString()}</span>
+                          </div>
+                          <h3 className="font-bold text-slate-800 text-sm mb-2">{doc.name}</h3>
+                          {doc.link && (
+                            <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                              <LinkIcon size={12} /> View Link
+                            </a>
+                          )}
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Announcements').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No announcements published yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Hero Slider' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">HERO SLIDER</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Upload photos for the homepage Hero Slider.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Slide
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.pdfLink) return;
+                  setLoading(true);
+                  try {
+                    await addDoc(collection(db, 'portal_documents'), {
+                      category: 'Hero Slider',
+                      name: formData.title,
+                      description: formData.description || '',
+                      link: formData.pdfLink, // This will store the photo URL
+                      createdBy: user?.uid,
+                      createdAt: serverTimestamp(),
+                      updatedAt: serverTimestamp()
+                    });
+                    setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
+                    setStatusMessage({ type: 'success', text: 'Slide added successfully.' });
+                  } catch (error) {
+                    console.error("Save Error:", error);
+                    setStatusMessage({ type: 'error', text: 'Failed to add slide.' });
+                  } finally {
+                    setLoading(false);
+                  }
+                }} className="space-y-6">
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Photo URL *</label>
+                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="https://..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Title (Optional)</label>
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter slide title..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Subtitle (Optional)</label>
+                    <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Enter slide subtitle..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                  </div>
+
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Add Slide</>}
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Current Slides ({portalDocs.filter(d => d.category === 'Hero Slider').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Hero Slider').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0">
+                          <img src={doc.link} alt="Slide Preview" className="w-32 h-20 object-cover rounded-lg mb-2" />
+                          <h3 className="font-bold text-slate-800 text-sm mb-1">{doc.name || 'Untitled Slide'}</h3>
+                          <p className="text-xs text-slate-500 mb-2">{doc.description}</p>
+                          {doc.link && (
+                            <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                              <LinkIcon size={12} /> View Image
+                            </a>
+                          )}
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Hero Slider').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No slides added yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Photo Gallery' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">PHOTO GALLERY</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Upload photos for the homepage Photo Gallery.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Photo
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.pdfLink) return;
+                  setLoading(true);
+                  try {
+                    await addDoc(collection(db, 'portal_documents'), {
+                      category: 'Photo Gallery',
+                      name: formData.title || '',
+                      link: formData.pdfLink, // This will store the photo URL
+                      createdBy: user?.uid,
+                      createdAt: serverTimestamp(),
+                      updatedAt: serverTimestamp()
+                    });
+                    setFormData({ title: '', pdfLink: '', flipbookLink: '', isNew: false });
+                    setStatusMessage({ type: 'success', text: 'Photo added successfully.' });
+                  } catch (error) {
+                    console.error("Save Error:", error);
+                    setStatusMessage({ type: 'error', text: 'Failed to add photo.' });
+                  } finally {
+                    setLoading(false);
+                  }
+                }} className="space-y-6">
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Photo URL *</label>
+                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="https://..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Caption (Optional)</label>
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter photo caption..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                  </div>
+
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Add Photo</>}
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Gallery Photos ({portalDocs.filter(d => d.category === 'Photo Gallery').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Photo Gallery').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0">
+                          <img src={doc.link} alt="Gallery Preview" className="w-32 h-20 object-cover rounded-lg mb-2" />
+                          {doc.name && <h3 className="font-bold text-slate-800 text-sm mb-1">{doc.name}</h3>}
+                          {doc.link && (
+                            <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                              <LinkIcon size={12} /> View Image
+                            </a>
+                          )}
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Photo Gallery').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No photos added yet.</div>}
                 </div>
               </div>
             </div>

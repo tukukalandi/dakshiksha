@@ -10,7 +10,7 @@ import {
   ExternalLink, FileText, LayoutGrid, Search, Users, Book,
   Globe, Mail, Phone, MapPin, Facebook, Twitter, Youtube, Instagram,
   Briefcase, Stamp, Package, MoreHorizontal, Calculator,
-  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge
+  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge, ImageIcon
 } from 'lucide-react';
 
 const SLIDES = [
@@ -108,11 +108,20 @@ const CARD_COLORS = [
 export function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [homepageDocs, setHomepageDocs] = useState<any[]>([]);
+  const [notices, setNotices] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [photoGallery, setPhotoGallery] = useState<any[]>([]);
+  const [activeNoticeTab, setActiveNoticeTab] = useState('NOTICE');
   const navigate = useNavigate();
 
   useEffect(() => {
+    // We will handle slide transition in a separate effect if needed, or update here
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
+      setCurrentSlide((prev) => {
+        const slidesLength = heroSlides.length > 0 ? heroSlides.length : SLIDES.length;
+        return (prev + 1) % slidesLength;
+      });
     }, 5000);
 
     const q = query(
@@ -125,11 +134,59 @@ export function Home() {
       setHomepageDocs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
+    const qNotices = query(
+      collection(db, 'portal_documents'),
+      where('category', '==', 'Notices & Circulars')
+    );
+    const unsubscribeNotices = onSnapshot(qNotices, (snapshot) => {
+      const sortedDocs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      setNotices(sortedDocs);
+    });
+
+    const qAnnouncements = query(
+      collection(db, 'portal_documents'),
+      where('category', '==', 'Announcements')
+    );
+    const unsubscribeAnnouncements = onSnapshot(qAnnouncements, (snapshot) => {
+      const sortedDocs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      setAnnouncements(sortedDocs);
+    });
+
+    const qHero = query(
+      collection(db, 'portal_documents'),
+      where('category', '==', 'Hero Slider')
+    );
+    const unsubscribeHero = onSnapshot(qHero, (snapshot) => {
+      const sortedDocs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      setHeroSlides(sortedDocs);
+    });
+
+    const qGallery = query(
+      collection(db, 'portal_documents'),
+      where('category', '==', 'Photo Gallery')
+    );
+    const unsubscribeGallery = onSnapshot(qGallery, (snapshot) => {
+      const sortedDocs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      setPhotoGallery(sortedDocs);
+    });
+
     return () => {
       clearInterval(timer);
       unsubscribe();
+      unsubscribeNotices();
+      unsubscribeAnnouncements();
+      unsubscribeHero();
+      unsubscribeGallery();
     };
-  }, []);
+  }, [heroSlides.length]);
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
@@ -145,12 +202,12 @@ export function Home() {
             className="absolute inset-0"
           >
             <img 
-              src={SLIDES[currentSlide].image} 
+              src={(heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.link || (heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.image} 
               className="w-full h-full object-cover"
               alt="Hero"
               referrerPolicy="no-referrer"
             />
-            <div className={`absolute inset-0 bg-gradient-to-r ${SLIDES[currentSlide].color} flex items-center`}>
+            <div className={`absolute inset-0 bg-gradient-to-r ${(heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.color || 'from-postal-red/60 to-transparent'} flex items-center`}>
               <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
                 <motion.div
                   initial={{ x: -50, opacity: 0 }}
@@ -159,10 +216,10 @@ export function Home() {
                   className="max-w-2xl text-white"
                 >
                   <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-                    {SLIDES[currentSlide].title}
+                    {(heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.name || (heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.title}
                   </h1>
                   <p className="text-lg md:text-xl opacity-90 mb-8">
-                    {SLIDES[currentSlide].subtitle}
+                    {(heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.description || (heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.subtitle}
                   </p>
                   <div className="flex gap-4">
                     <button className="bg-postal-yellow text-slate-900 px-8 py-3 rounded-sm font-bold hover:bg-white transition-colors">
@@ -180,7 +237,7 @@ export function Home() {
         
         {/* Slider Indicators */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-          {SLIDES.map((_, i) => (
+          {(heroSlides.length > 0 ? heroSlides : SLIDES).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentSlide(i)}
@@ -293,119 +350,158 @@ export function Home() {
               <button className="text-xs font-bold text-slate-400 hover:text-postal-red uppercase tracking-wider">View All</button>
             </div>
             <div className="space-y-4">
-              {[
-                "Notification for GDS to MTS Exam 2026 released.",
-                "New Mock Test for PA/SA Exam added.",
-                "Updated PO Guide Part I notes available.",
-                "Join our Telegram group for daily updates."
-              ].map((news, i) => (
-                <div key={i} className="flex gap-3 group cursor-pointer">
+              {announcements.length > 0 ? announcements.map((ann, i) => (
+                <div key={ann.id || i} className="flex gap-3 group cursor-pointer" onClick={() => ann.link && window.open(ann.link, '_blank')}>
                   <div className="min-w-[4px] bg-postal-red/20 rounded-full group-hover:bg-postal-red transition-colors" />
-                  <p className="text-sm text-slate-600 group-hover:text-postal-red transition-colors">{news}</p>
+                  <p className="text-sm text-slate-600 group-hover:text-postal-red transition-colors">{ann.name}</p>
+                </div>
+              )) : (
+                <div className="text-sm text-slate-400 font-medium">No new announcements.</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Bulletin Boards */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+            
+            {/* Left: Important Documents */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[500px]">
+              <div className="bg-[#2a4392] text-white p-5 flex items-center gap-3 shrink-0">
+                <FileText size={20} />
+                <h2 className="text-lg font-black tracking-wide uppercase">Important Documents</h2>
+              </div>
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <ul className="space-y-6">
+                  {homepageDocs.map((doc, idx) => {
+                    const url = (doc.link || "").toLowerCase();
+                    let ftype = "LINK";
+                    if (url.includes('.pdf')) ftype = "PDF";
+                    else if (url.includes('.doc')) ftype = "DOC";
+                    else if (url.includes('youtube.com') || url.includes('youtu.be')) ftype = "VIDEO";
+
+                    return (
+                      <li key={doc.id || idx} className="border-b border-slate-100 pb-4 last:border-0 relative pl-4">
+                        <div className="absolute left-0 top-2 w-1.5 h-1.5 rounded-full bg-[#d32f2f]" />
+                        <a href={doc.link} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 group block">
+                          <div className="flex items-start gap-2">
+                            <span className="font-bold text-slate-800 group-hover:text-postal-blue transition-colors leading-snug">
+                              {doc.name}
+                            </span>
+                            <span className="text-[10px] font-bold text-postal-blue shrink-0 flex items-center">
+                              {ftype}
+                            </span>
+                            {doc.isNew && (
+                              <span className="text-[10px] font-bold text-[#d32f2f] uppercase shrink-0">
+                                NEW!
+                              </span>
+                            )}
+                          </div>
+                      </a>
+                    </li>
+                  )})}
+                  {homepageDocs.length === 0 && (
+                    <li className="text-slate-400 text-sm font-medium">No documents available.</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+            {/* Right: Notices & Circulars */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[500px]">
+              <div className="bg-[#e49b3d] text-white p-5 flex items-center gap-3 shrink-0">
+                <Bell size={20} />
+                <h2 className="text-lg font-black tracking-wide uppercase">Notice / Circular</h2>
+              </div>
+              
+              {/* Tabs */}
+              <div className="flex items-center overflow-x-auto border-b border-slate-100 bg-slate-50/50 custom-scrollbar shrink-0">
+                {['NOTICE', 'ACCOMMODATION', 'CGHS', 'PENSION/SALARY', 'MISCELLANEOUS'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveNoticeTab(tab)}
+                    className={cn(
+                      "px-4 py-3 text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors border-b-2",
+                      activeNoticeTab === tab 
+                        ? "text-postal-blue border-postal-blue bg-white" 
+                        : "text-slate-500 border-transparent hover:text-slate-800"
+                    )}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <ul className="space-y-6">
+                  {notices
+                    .filter(n => n.subType?.toUpperCase() === activeNoticeTab || (!n.subType && activeNoticeTab === 'NOTICE'))
+                    .map((notice, idx) => (
+                    <li key={notice.id || idx} className="border-b border-slate-100 pb-4 last:border-0 relative pl-4">
+                      <div className="absolute left-0 top-2 w-1.5 h-1.5 rounded-full bg-[#d32f2f]" />
+                      <a href={notice.link || notice.externalLink} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-2 group block">
+                        <span className="font-bold text-slate-800 group-hover:text-postal-blue transition-colors leading-snug">
+                          {notice.name}
+                          {notice.isNew && (
+                              <span className="text-[10px] font-bold text-[#d32f2f] uppercase ml-2 animate-pulse">
+                                NEW!
+                              </span>
+                          )}
+                        </span>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                          PUBLISHED: {notice.createdAt?.toDate ? notice.createdAt.toDate().toISOString().split('T')[0] : 'RECENT'}
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                  {notices.filter(n => n.subType?.toUpperCase() === activeNoticeTab || (!n.subType && activeNoticeTab === 'NOTICE')).length === 0 && (
+                    <li className="text-slate-400 text-sm font-medium">No notices available for this category.</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Photo Gallery Section */}
+      {photoGallery.length > 0 && (
+        <div className="bg-white py-16 border-t border-slate-200">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8 pb-2 border-b-2 border-postal-red">
+              <h2 className="text-2xl font-bold text-postal-red flex items-center gap-2">
+                <ImageIcon size={24} /> Photo Gallery
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {photoGallery.map((photo) => (
+                <div key={photo.id} className="group cursor-pointer">
+                  <div className="relative h-48 rounded-lg overflow-hidden bg-slate-100 shadow-sm border border-slate-200 mb-3">
+                    <img
+                      src={photo.link}
+                      alt={photo.name || 'Gallery Image'}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <Search className="text-white w-8 h-8 opacity-75" />
+                    </div>
+                  </div>
+                  {photo.name && (
+                    <p className="text-sm font-medium text-slate-700 text-center line-clamp-2">
+                      {photo.name}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
           </div>
-
-          <div className="bg-postal-red/5 p-6 rounded-sm border border-postal-red/10">
-            <h3 className="font-bold text-postal-red mb-4 flex items-center gap-2">
-              <Info size={18} /> Quick Help
-            </h3>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li className="flex items-center gap-2 hover:text-postal-red cursor-pointer" onClick={() => window.open('https://docs.google.com/spreadsheets/d/1ge75tHFQSI0vQFVsAnaVwQ7X2K6G-94fwLg0Jy0eL_4/edit?gid=0#gid=0', '_blank')}>
-                <ChevronRight size={14} /> Job specification contact details of CO
-              </li>
-              <li className="flex items-center gap-2 hover:text-postal-red cursor-pointer">
-                <ChevronRight size={14} /> Copyright Policy
-              </li>
-              <li className="flex items-center gap-2 hover:text-postal-red cursor-pointer">
-                <ChevronRight size={14} /> Feedback on Textbooks
-              </li>
-            </ul>
-          </div>
         </div>
+      )}
 
-        {/* Right: Featured Sections */}
-        <div className="lg:col-span-8 space-y-12">
-          
-          {/* Important Documents Bulletin */}
-          {homepageDocs.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="bg-postal-dark-maroon text-postal-yellow p-4 px-6 flex items-center gap-3">
-                <FileBadge size={24} />
-                <div>
-                  <h2 className="text-xl font-black uppercase tracking-wider">Important Documents</h2>
-                  <p className="text-xs text-white/80 font-medium">Click to view or download files</p>
-                </div>
-              </div>
-              <div className="p-2 gap-1 grid grid-cols-1 sm:grid-cols-2">
-                {homepageDocs.map((doc, idx) => {
-                  let docTypeLabel = "Document";
-                  let Icon = FileText;
-                  const url = (doc.link || "").toLowerCase();
-                  if (url.includes('youtube.com') || url.includes('youtu.be')) { docTypeLabel = "YouTube Video"; Icon = Youtube; }
-                  else if (url.includes('drive.google.com')) { docTypeLabel = "Google Drive"; }
-                  else if (url.includes('.pdf')) { docTypeLabel = "PDF Document"; }
-                  else if (url.includes('.doc') || url.includes('.docx')) { docTypeLabel = "Word Document"; }
-
-                  return (
-                  <a
-                    key={doc.id || idx}
-                    href={doc.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-3 hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-lg flex items-start gap-4 group transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-orange-100 transition-all">
-                      <Icon size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-slate-800 text-sm group-hover:text-postal-red truncate transition-colors">
-                        {doc.name}
-                      </h3>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs font-semibold text-slate-400">{docTypeLabel}</span>
-                        <div className="flex items-center text-postal-blue text-xs font-bold gap-1 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-                          View <ExternalLink size={12} />
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                )})}
-              </div>
-            </div>
-          )}
-
-          {/* Featured Sections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-sm shadow-sm border border-slate-100 group cursor-pointer">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Video size={24} />
-                </div>
-                <h3 className="font-bold text-lg">Virtual Classes</h3>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Watch high-quality educational videos and live sessions by expert teachers.</p>
-              <button className="text-postal-red font-bold text-xs flex items-center gap-1 hover:underline">
-                EXPLORE VIDEOS <ExternalLink size={12} />
-              </button>
-            </div>
-
-            <div className="bg-white p-6 rounded-sm shadow-sm border border-slate-100 group cursor-pointer">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                  <PenTool size={24} />
-                </div>
-                <h3 className="font-bold text-lg">Practice Quizzes</h3>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Test your knowledge with interactive quizzes and track your progress.</p>
-              <button className="text-postal-red font-bold text-xs flex items-center gap-1 hover:underline">
-                START QUIZ <ExternalLink size={12} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

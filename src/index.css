@@ -37,3 +37,10 @@
 .ncert-container {
   @apply mx-auto max-w-7xl bg-white p-6 shadow-lg;
 }
+
+/* Google Translate Overrides */
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+body { top: 0px !important; }
+.goog-tooltip { display: none !important; }
+.goog-tooltip:hover { display: none !important; }
+.goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }

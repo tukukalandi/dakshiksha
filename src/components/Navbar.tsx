@@ -23,7 +23,32 @@ interface SearchItem {
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('English');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'ur', name: 'Urdu' },
+    { code: 'gu', name: 'Gujarati' },
+  ];
+
+  const handleLanguageChange = (langCode: string, langName: string) => {
+    setCurrentLang(langName);
+    setIsLanguageMenuOpen(false);
+    
+    // Check if google-translate elements are present
+    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (select) {
+      select.value = langCode;
+      select.dispatchEvent(new Event('change'));
+    }
+  };
   const [classes, setClasses] = useState<any[]>([]);
   const navigate = useNavigate();
 
@@ -178,9 +203,27 @@ export function Navbar() {
       {/* Top Accessibility Bar (Language Bar) */}
       <div className="bg-postal-dark-maroon border-b border-white/10 py-1 text-[11px] font-medium text-white">
         <div className="mx-auto max-w-7xl flex items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
-          <button className="hover:text-postal-yellow flex items-center gap-1">
-            <Globe size={12} /> Language
-          </button>
+          <div className="relative">
+            <button 
+              className="hover:text-postal-yellow flex items-center gap-1"
+              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+            >
+              <Globe size={12} /> {currentLang}
+            </button>
+            {isLanguageMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-sm shadow-lg z-50 py-1 min-w-[120px]">
+                {languages.map(lang => (
+                  <button
+                    key={lang.code}
+                    className="w-full text-left px-3 py-1.5 text-[11px] hover:bg-slate-50 hover:text-postal-red transition-colors"
+                    onClick={() => handleLanguageChange(lang.code, lang.name)}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="hover:text-postal-yellow flex items-center gap-1">
             <Type size={12} /> Text Size
           </button>
@@ -205,14 +248,7 @@ export function Navbar() {
                 <ArrowLeft size={24} />
               </button>
             )}
-            <div className="bg-white p-1 rounded-sm shadow-sm flex items-center justify-center">
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" 
-                alt="Indian National Emblem" 
-                className="h-14 w-auto"
-                referrerPolicy="no-referrer"
-              />
-            </div>
+            {/* Removed Indian Emblem as requested */}
             {/* Branch Menu Button */}
             <div className="branch-menu-container relative">
               <button 
@@ -312,21 +348,12 @@ export function Navbar() {
               )}
             </div>
 
-            <Link to="/" className="flex items-center gap-4 group">
-              <div className="flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-md border border-postal-red/10 overflow-hidden group-hover:scale-105 transition-transform">
-                <div className="relative">
-                  <Mail size={32} className="text-postal-red" />
-                  <GraduationCap 
-                    size={20} 
-                    className="absolute -top-1 -right-1 text-postal-yellow stroke-postal-red stroke-2" 
-                  />
-                </div>
-              </div>
+            <Link to="/" className="flex items-center gap-2 group ml-4">
               <div className="text-left">
                 <h1 className="text-xl md:text-2xl font-black leading-tight tracking-tight text-white group-hover:text-postal-yellow transition-colors">
                   डाकशिक्षा <span className="text-postal-yellow ml-1">DakShiksha</span>
                 </h1>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-white/70 font-bold mt-0.5">
+                <p className="hidden md:block text-[9px] uppercase tracking-[0.25em] text-white/70 font-bold mt-0.5">
                   Postal Educational Knowledge Portal
                 </p>
               </div>
@@ -463,8 +490,8 @@ export function Navbar() {
       {/* Navigation Bar (India Post Red) */}
       <nav className="bg-postal-red sticky top-0 z-40 shadow-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12">
-            <div className="hidden md:flex items-center gap-10 text-[13px] font-bold text-white">
+          <div className="flex items-center justify-start min-h-12 py-2 md:py-0 w-full max-w-full">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 md:gap-x-10 text-[12px] md:text-[13px] font-bold text-white px-2">
               <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">HOME</Link>
               
               <div className="relative group h-12 flex items-center">
@@ -523,13 +550,6 @@ export function Navbar() {
                 <Link to="/admin-portal" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">ADMIN PORTAL</Link>
               )}
             </div>
-
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-white hover:text-postal-yellow"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
 
