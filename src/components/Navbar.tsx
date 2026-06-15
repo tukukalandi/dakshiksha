@@ -11,6 +11,7 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { cn } from '../lib/utils';
 import Fuse from 'fuse.js';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface SearchItem {
   id: string;
@@ -131,6 +132,7 @@ export function Navbar() {
   };
 
   const { user, isAdmin, login, logout } = useAuth();
+  const { isDark, toggleTheme, textSize, setTextSize, isScreenReaderOn, toggleScreenReader } = useTheme();
 
   const examCategories = [
     { name: 'GDS to MTS', search: ['mts'] },
@@ -257,21 +259,27 @@ export function Navbar() {
 
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full md:w-auto text-white/90 text-[10px] font-bold">
             <div className="flex items-center gap-2">
-              <button className="hover:text-postal-yellow px-1">A-</button>
-              <button className="hover:text-postal-yellow px-1">A</button>
-              <button className="hover:text-postal-yellow px-1">A+</button>
+              <button onClick={() => setTextSize(0)} className={`px-1 transition-colors ${textSize === 0 ? 'text-postal-yellow' : 'hover:text-postal-yellow'}`}>A-</button>
+              <button onClick={() => setTextSize(1)} className={`px-1 transition-colors ${textSize === 1 ? 'text-postal-yellow' : 'hover:text-postal-yellow'}`}>A</button>
+              <button onClick={() => setTextSize(2)} className={`px-1 transition-colors ${textSize === 2 ? 'text-postal-yellow' : 'hover:text-postal-yellow'}`}>A+</button>
             </div>
             
             <div className="h-3 w-[1px] bg-white/20" />
             
-            <button className="hover:text-postal-yellow uppercase tracking-widest">
-              SCREEN READER
+            <button 
+              onClick={toggleScreenReader}
+              className={`uppercase tracking-widest transition-colors ${isScreenReaderOn ? 'text-postal-yellow' : 'hover:text-postal-yellow'}`}
+            >
+              SCREEN READER {isScreenReaderOn ? 'ON' : 'OFF'}
             </button>
 
             <div className="h-3 w-[1px] bg-white/20" />
 
-            <button className="hover:text-postal-yellow flex items-center gap-1.5 uppercase tracking-widest">
-              <Moon size={10} /> DARK THEME
+            <button 
+              onClick={toggleTheme}
+              className={`flex items-center gap-1.5 uppercase tracking-widest transition-colors ${isDark ? 'text-postal-yellow' : 'hover:text-postal-yellow'}`}
+            >
+              <Moon size={10} /> {isDark ? 'LIGHT THEME' : 'DARK THEME'}
             </button>
           </div>
 

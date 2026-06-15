@@ -5,6 +5,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { FloatingBackButton } from './components/FloatingBackButton';
@@ -28,9 +29,10 @@ import { MyBranchPortal } from './pages/MyBranchPortal';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="flex min-h-screen flex-col">
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="flex min-h-screen flex-col">
           <Navbar />
           <Breadcrumbs />
           <FloatingBackButton />
@@ -58,5 +60,6 @@ export default function App() {
         </div>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
