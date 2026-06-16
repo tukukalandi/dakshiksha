@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc, where, Timestamp, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactPlayer from 'react-player';
 import { 
   LayoutDashboard, FileText, FileSearch, 
   ListOrdered, Megaphone, ClipboardList, 
-  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video
+  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video, AppWindow, Edit2, X
 } from 'lucide-react';
 
 interface HomepageDoc {
@@ -39,6 +39,8 @@ export function AdminPortal() {
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState<HomepageDoc[]>([]);
   const [portalDocs, setPortalDocs] = useState<any[]>([]);
+  const [editingAppId, setEditingAppId] = useState<string | null>(null);
+  const [editAppName, setEditAppName] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const [formData, setFormData] = useState({
@@ -120,6 +122,20 @@ export function AdminPortal() {
       </div>
     );
   }
+
+  const handleUpdateApp = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'portal_documents', id), {
+        name: editAppName,
+        updatedAt: serverTimestamp()
+      });
+      setEditingAppId(null);
+      setStatusMessage({ type: 'success', text: 'App updated successfully.' });
+    } catch (error) {
+      console.error("Update Error:", error);
+      setStatusMessage({ type: 'error', text: 'Failed to update app.' });
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -283,7 +299,7 @@ export function AdminPortal() {
     { name: 'Notices & Circulars', icon: FileSearch },
     { name: 'Announcements', icon: Megaphone },
     { name: 'Photo Gallery', icon: ImageIcon },
-    { name: 'Video Gallery', icon: Video },
+    { name: 'My Apps', icon: AppWindow },
     { name: 'Hero Slider', icon: Images },
     { name: 'Forms', icon: ListOrdered },
   ];
@@ -803,38 +819,39 @@ export function AdminPortal() {
               </div>
             </div>
           </div>
-        ) : activeTab === 'Video Gallery' ? (
+        ) : activeTab === 'My Apps' ? (
           <div className="max-w-5xl mx-auto">
             <div className="mb-10">
-              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">VIDEO GALLERY</h1>
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">MY APPS</h1>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                Upload video links (YouTube, Facebook, Twitter, Instagram) for the homepage Video Gallery.
+                Save HTML code to display custom apps on the homepage.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
               <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
                 <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
-                  Add New Video Link
+                  Add New App
                 </h2>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
-                  if (!formData.pdfLink) return;
+                  if (!formData.description) return;
                   setLoading(true);
                   try {
                     await addDoc(collection(db, 'portal_documents'), {
-                      category: 'Video Gallery',
-                      name: formData.title || '',
-                      link: formData.pdfLink, // This will store the video URL
+                      category: 'My Apps',
+                      name: formData.title || 'Untitled App',
+                      description: formData.description,
+                      link: '',
                       createdBy: user?.uid,
                       createdAt: serverTimestamp(),
                       updatedAt: serverTimestamp()
                     });
                     setFormData({ title: '', pdfLink: '', description: '', flipbookLink: '', isNew: false });
-                    setStatusMessage({ type: 'success', text: 'Video link added successfully.' });
+                    setStatusMessage({ type: 'success', text: 'App saved successfully.' });
                   } catch (error) {
                     console.error("Save Error:", error);
-                    setStatusMessage({ type: 'error', text: 'Failed to add video link.' });
+                    setStatusMessage({ type: 'error', text: 'Failed to save app.' });
                   } finally {
                     setLoading(false);
                     setTimeout(() => setStatusMessage(null), 3000);
@@ -848,39 +865,63 @@ export function AdminPortal() {
                   )}
 
                   <div className="space-y-4">
-                    <input type="url" value={formData.pdfLink} onChange={(e) => setFormData({...formData, pdfLink: e.target.value})} placeholder="Paste Video URL (YouTube, Facebook, etc.)..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
-                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter video caption (Optional)..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" />
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter App Name..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
+                    <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Paste HTML code here..." className="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none font-mono" required />
                   </div>
 
                   <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
-                    {loading ? 'Processing...' : <><Plus size={20} /> Add Video</>}
+                    {loading ? 'Processing...' : <><Plus size={20} /> Save App</>}
                   </button>
                 </form>
               </div>
 
               <div className="lg:col-span-7">
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Gallery Videos ({portalDocs.filter(d => d.category === 'Video Gallery').length})</h2>
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Saved Apps ({portalDocs.filter(d => d.category === 'My Apps').length})</h2>
                 <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                   <AnimatePresence>
-                    {portalDocs.filter(d => d.category === 'Video Gallery').map((doc) => (
-                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row items-start justify-between gap-4 group">
+                    {portalDocs.filter(d => d.category === 'My Apps').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between gap-4 group">
                         <div className="flex-1 min-w-0 w-full">
-                          <div className="w-full h-32 bg-slate-100 rounded-lg overflow-hidden mb-3 relative">
-                             {/* @ts-ignore */}
-                             <ReactPlayer url={doc.link} width="100%" height="100%" controls={true} />
+                          {editingAppId === doc.id ? (
+                            <input
+                              type="text"
+                              value={editAppName}
+                              onChange={(e) => setEditAppName(e.target.value)}
+                              className="w-full px-3 py-1 mb-2 font-bold text-slate-800 text-sm border-b border-postal-red/50 focus:border-postal-red focus:outline-none bg-slate-50 rounded"
+                              autoFocus
+                            />
+                          ) : (
+                            <h3 className="font-bold text-slate-800 text-sm mb-2">{doc.name}</h3>
+                          )}
+                          <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 max-h-24 overflow-hidden font-mono truncate">
+                            {doc.description}
                           </div>
-                          {doc.name && <h3 className="font-bold text-slate-800 text-sm mb-1">{doc.name}</h3>}
-                          {doc.link && (
-                            <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
-                              <LinkIcon size={12} /> View Link
-                            </a>
+                        </div>
+                        <div className="flex justify-end gap-2 shrink-0">
+                          {editingAppId === doc.id ? (
+                            <>
+                              <button onClick={() => handleUpdateApp(doc.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Save">
+                                <CheckCircle2 size={20} />
+                              </button>
+                              <button onClick={() => setEditingAppId(null)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-colors" title="Cancel">
+                                <X size={20} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => { setEditingAppId(doc.id); setEditAppName(doc.name); }} className="p-2 text-slate-400 hover:text-postal-red hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Edit App Name">
+                                <Edit2 size={20} />
+                              </button>
+                              <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete">
+                                <Trash2 size={20} />
+                              </button>
+                            </>
                           )}
                         </div>
-                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {portalDocs.filter(d => d.category === 'Video Gallery').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No videos added yet.</div>}
+                  {portalDocs.filter(d => d.category === 'My Apps').length === 0 && <div className="text-center w-full p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No apps added yet.</div>}
                 </div>
               </div>
             </div>

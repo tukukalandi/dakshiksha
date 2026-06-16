@@ -26,6 +26,8 @@ import { SearchResults } from './pages/SearchResults';
 import { AdminPortal } from './pages/AdminPortal';
 import { PublicPortal } from './pages/PublicPortal';
 import { MyBranchPortal } from './pages/MyBranchPortal';
+import { MyAppsPage } from './pages/MyAppsPage';
+import { MyAppViewer } from './pages/MyAppViewer';
 
 export default function App() {
   return (
@@ -44,6 +46,8 @@ export default function App() {
               <Route path="/portal/:categorySlug" element={<PublicPortal />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/my-branch-portal" element={<MyBranchPortal />} />
+              <Route path="/my-apps" element={<MyAppsPage />} />
+              <Route path="/my-apps/:appId" element={<MyAppViewer />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/exams/accountant" element={<AccountantExam />} />
               <Route path="/branch/savings" element={<SavingsBranch />} />
