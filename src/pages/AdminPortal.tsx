@@ -41,6 +41,7 @@ export function AdminPortal() {
   const [portalDocs, setPortalDocs] = useState<any[]>([]);
   const [editingAppId, setEditingAppId] = useState<string | null>(null);
   const [editAppName, setEditAppName] = useState('');
+  const [editAppDescription, setEditAppDescription] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const [formData, setFormData] = useState({
@@ -127,6 +128,7 @@ export function AdminPortal() {
     try {
       await updateDoc(doc(db, 'portal_documents', id), {
         name: editAppName,
+        description: editAppDescription,
         updatedAt: serverTimestamp()
       });
       setEditingAppId(null);
@@ -883,19 +885,31 @@ export function AdminPortal() {
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between gap-4 group">
                         <div className="flex-1 min-w-0 w-full">
                           {editingAppId === doc.id ? (
-                            <input
-                              type="text"
-                              value={editAppName}
-                              onChange={(e) => setEditAppName(e.target.value)}
-                              className="w-full px-3 py-1 mb-2 font-bold text-slate-800 text-sm border-b border-postal-red/50 focus:border-postal-red focus:outline-none bg-slate-50 rounded"
-                              autoFocus
-                            />
+                            <>
+                              <input
+                                type="text"
+                                value={editAppName}
+                                onChange={(e) => setEditAppName(e.target.value)}
+                                className="w-full px-3 py-1 mb-2 font-bold text-slate-800 text-sm border-b border-postal-red/50 focus:border-postal-red focus:outline-none bg-slate-50 rounded"
+                                placeholder="App Name"
+                                autoFocus
+                              />
+                              <textarea
+                                value={editAppDescription}
+                                onChange={(e) => setEditAppDescription(e.target.value)}
+                                rows={4}
+                                className="w-full text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-200 focus:border-postal-red focus:outline-none font-mono resize-y"
+                                placeholder="HTML Description"
+                              />
+                            </>
                           ) : (
-                            <h3 className="font-bold text-slate-800 text-sm mb-2">{doc.name}</h3>
+                            <>
+                              <h3 className="font-bold text-slate-800 text-sm mb-2">{doc.name}</h3>
+                              <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 max-h-24 overflow-hidden font-mono truncate" title={doc.description}>
+                                {doc.description}
+                              </div>
+                            </>
                           )}
-                          <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 max-h-24 overflow-hidden font-mono truncate">
-                            {doc.description}
-                          </div>
                         </div>
                         <div className="flex justify-end gap-2 shrink-0">
                           {editingAppId === doc.id ? (
@@ -909,7 +923,7 @@ export function AdminPortal() {
                             </>
                           ) : (
                             <>
-                              <button onClick={() => { setEditingAppId(doc.id); setEditAppName(doc.name); }} className="p-2 text-slate-400 hover:text-postal-red hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Edit App Name">
+                              <button onClick={() => { setEditingAppId(doc.id); setEditAppName(doc.name); setEditAppDescription(doc.description || ''); }} className="p-2 text-slate-400 hover:text-postal-red hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Edit App">
                                 <Edit2 size={20} />
                               </button>
                               <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete">
