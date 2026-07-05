@@ -145,7 +145,7 @@ export function SearchResults() {
                         {item.type}
                       </span>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-postal-red transition-colors truncate">
+                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-postal-red transition-colors break-words">
                       {item.title}
                     </h3>
                     {item.subtitle && (

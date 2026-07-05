@@ -62,7 +62,7 @@ export function MyAppsPage() {
                     </div>
                   </div>
                   <div className="bg-slate-50 border-t border-slate-100 p-5 flex items-center justify-between">
-                    <h3 className="font-bold text-slate-800 text-lg line-clamp-1">
+                    <h3 className="font-bold text-slate-800 text-lg break-words">
                        {app.name || 'Custom App'}
                     </h3>
                     <ChevronRight size={20} className={`text-slate-400 ${color.hoverIconText} transition-colors`} />

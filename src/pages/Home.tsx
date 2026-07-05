@@ -484,7 +484,7 @@ export function Home() {
                     <img
                       src={photo.link}
                       alt={photo.name || 'Gallery Image'}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -492,7 +492,7 @@ export function Home() {
                     </div>
                   </div>
                   {photo.name && (
-                    <p className="text-sm font-medium text-slate-700 text-center line-clamp-2">
+                    <p className="text-sm font-medium text-slate-700 text-center break-words">
                       {photo.name}
                     </p>
                   )}

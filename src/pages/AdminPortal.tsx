@@ -553,11 +553,12 @@ export function AdminPortal() {
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                               <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
                               <p className="mb-2 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                              <p className="text-xs text-slate-400">PDF, XLS, DOC, PPT (MAX. 50MB)</p>
+                              <p className="text-xs text-slate-400">PDF, XLS, DOC, PPT, HTML (MAX. 50MB)</p>
                             </div>
                             <input 
                               type="file" 
                               ref={fileInputRef}
+                              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.html"
                               className="hidden" 
                               onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                               required={uploadMode === 'file'}
@@ -643,7 +644,7 @@ export function AdminPortal() {
                             <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded uppercase">{doc.category}</span>
                             {doc.subType && <span className="text-[10px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-200 uppercase">{doc.subType}</span>}
                           </div>
-                          <h3 className="font-bold text-slate-800 text-base mb-2 line-clamp-2" title={doc.name}>{doc.name}</h3>
+                          <h3 className="font-bold text-slate-800 text-base mb-2 break-words" title={doc.name}>{doc.name}</h3>
                           <div className="flex items-center gap-3">
                             <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
                               <LinkIcon size={12} /> View File
@@ -730,7 +731,7 @@ export function AdminPortal() {
                               <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
                               <p className="mb-2 text-sm text-slate-500">Click to upload or drag</p>
                             </div>
-                            <input type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} required={uploadMode === 'file'} />
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} required={uploadMode === 'file'} />
                           </label>
                         </div>
                         {selectedFile && <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 mt-2"><CheckCircle2 size={16} /> {selectedFile.name}</p>}
@@ -1121,7 +1122,7 @@ export function AdminPortal() {
                     {portalDocs.filter(d => d.category === 'Photo Gallery').map((doc) => (
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
                         <div className="flex-1 min-w-0">
-                          <img src={doc.link} alt="Gallery Preview" className="w-32 h-20 object-cover rounded-lg mb-2" />
+                          <img src={doc.link} alt="Gallery Preview" className="w-32 h-20 object-contain bg-slate-50 rounded-lg mb-2" />
                           {doc.name && <h3 className="font-bold text-slate-800 text-sm mb-1">{doc.name}</h3>}
                           {doc.link && (
                             <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
