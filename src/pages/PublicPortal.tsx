@@ -246,7 +246,7 @@ export function PublicPortal() {
                             {typeInfo.label}
                           </span>
                         </div>
-                        <h3 className="text-white font-black text-base sm:text-lg lg:text-xl uppercase tracking-tight truncate leading-tight group-hover:underline decoration-white/40 underline-offset-4">
+                        <h3 className="text-white font-black text-base sm:text-lg lg:text-xl uppercase tracking-tight line-clamp-2 leading-tight group-hover:underline decoration-white/40 underline-offset-4">
                           {doc.name}
                         </h3>
                         {doc.description && (

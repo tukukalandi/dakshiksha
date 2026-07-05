@@ -65,6 +65,8 @@ export function AdminPortal() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState('Documents');
+  const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docCategoryFilter, setDocCategoryFilter] = useState('All');
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -599,17 +601,49 @@ export function AdminPortal() {
 
               {/* List Panel */}
               <div className="lg:col-span-7">
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Uploaded Documents ({portalDocs.length})</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest shrink-0">
+                    Uploaded Documents ({
+                      portalDocs.filter(d => 
+                        (docCategoryFilter === 'All' ? CATEGORIES.includes(d.category) : d.category === docCategoryFilter) &&
+                        (docSearchQuery === '' || d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) || d.subType?.toLowerCase().includes(docSearchQuery.toLowerCase()))
+                      ).length
+                    })
+                  </h2>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="relative flex-1 sm:w-48">
+                      <FileSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                      <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        value={docSearchQuery}
+                        onChange={(e) => setDocSearchQuery(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
+                      />
+                    </div>
+                    <select
+                      value={docCategoryFilter}
+                      onChange={(e) => setDocCategoryFilter(e.target.value)}
+                      className="py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none shrink-0"
+                    >
+                      <option value="All">All Categories</option>
+                      {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
+                  </div>
+                </div>
                 <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                   <AnimatePresence>
-                    {portalDocs.map((doc) => (
+                    {portalDocs.filter(d => 
+                      (docCategoryFilter === 'All' ? CATEGORIES.includes(d.category) : d.category === docCategoryFilter) &&
+                      (docSearchQuery === '' || d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) || d.subType?.toLowerCase().includes(docSearchQuery.toLowerCase()))
+                    ).map((doc) => (
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded uppercase">{doc.category}</span>
                             {doc.subType && <span className="text-[10px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-200 uppercase">{doc.subType}</span>}
                           </div>
-                          <h3 className="font-bold text-slate-800 text-base mb-2 truncate" title={doc.name}>{doc.name}</h3>
+                          <h3 className="font-bold text-slate-800 text-base mb-2 line-clamp-2" title={doc.name}>{doc.name}</h3>
                           <div className="flex items-center gap-3">
                             <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
                               <LinkIcon size={12} /> View File
@@ -623,7 +657,10 @@ export function AdminPortal() {
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {portalDocs.length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No files uploaded yet.</div>}
+                  {portalDocs.filter(d => 
+                    (docCategoryFilter === 'All' ? CATEGORIES.includes(d.category) : d.category === docCategoryFilter) &&
+                    (docSearchQuery === '' || d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) || d.subType?.toLowerCase().includes(docSearchQuery.toLowerCase()))
+                  ).length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No files found.</div>}
                 </div>
               </div>
             </div>
