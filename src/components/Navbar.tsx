@@ -142,16 +142,6 @@ export function Navbar() {
     { name: 'IP Exam', search: ['inspector'] },
   ];
 
-  const branches = [
-    { name: 'Mail Branch', icon: Mail },
-    { name: 'BD Branch', icon: Briefcase },
-    { name: 'Savings Branch', icon: Package },
-    { name: 'Philately Branch', icon: Stamp },
-    { name: 'Parcel Branch', icon: Package },
-    { name: 'CCS Branch', icon: Users },
-    { name: 'Other Branch', icon: MoreHorizontal },
-  ];
-
   const extraMenuOptions = [
     ...(isAdmin ? [{ name: 'Internal Portal', icon: LayoutGrid, link: '/internal-portal' }] : []),
     { name: 'Staff Corner', icon: UserCircle, link: '/staff-corner' },
@@ -317,53 +307,10 @@ export function Navbar() {
               {isBranchMenuOpen && (
                 <div className="absolute left-0 top-full mt-4 w-64 bg-white text-slate-900 shadow-2xl rounded-sm border border-slate-200 z-[100] overflow-hidden animate-in slide-in-from-left duration-200">
                   <div className="bg-postal-red p-4 text-white">
-                    <h3 className="font-bold text-lg">My Branches</h3>
-                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Select a branch to explore</p>
-                  </div>
-                  <div className="py-2">
-                    {branches.map((branch) => {
-                      const isExternal = branch.name === 'Philately Branch' || branch.name === 'BD Branch' || branch.name === 'Mail Branch';
-                      const externalLinks: Record<string, string> = {
-                        'Philately Branch': 'https://philately.vercel.app/',
-                        'BD Branch': 'https://bd-branch-dhenkanal.vercel.app/',
-                        'Mail Branch': 'https://mail-branch.vercel.app/'
-                      };
-                      
-                      const link = branch.name === 'BD Branch' ? '/branch/bd' : 
-                                   branch.name === 'Savings Branch' ? '/branch/savings' : 
-                                   branch.name === 'Other Branch' ? '/branch/other' : '#';
-                      
-                      if (isExternal) {
-                        return (
-                          <a
-                            key={branch.name}
-                            href={externalLinks[branch.name]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 transition-colors border-b border-slate-50 last:border-0"
-                            onClick={() => setIsBranchMenuOpen(false)}
-                          >
-                            <branch.icon size={18} className="text-postal-red" />
-                            {branch.name}
-                          </a>
-                        );
-                      }
-
-                      return (
-                        <Link
-                          key={branch.name}
-                          to={link}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 transition-colors border-b border-slate-50 last:border-0"
-                          onClick={() => setIsBranchMenuOpen(false)}
-                        >
-                          <branch.icon size={18} className="text-postal-red" />
-                          {branch.name}
-                        </Link>
-                      );
-                    })}
+                    <h3 className="font-bold text-lg">Menu</h3>
+                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Quick Access</p>
                   </div>
                   <div className="bg-slate-50 p-3 border-t border-slate-200">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Quick Access</h4>
                     <div className="space-y-1">
                       {extraMenuOptions.map((option) => {
                         if (option.external) {
@@ -584,15 +531,8 @@ export function Navbar() {
                   >
                     Office Directory
                   </a>
-                  <a 
-                    href="https://dhenkanal-rs-so.vercel.app/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
-                  >
-                    Dhenkanal RS SO
-                  </a>
                   <div className="h-[1px] bg-slate-100 my-1" />
+                  <Link to="/photo-gallery" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">PHOTO GALLERY</Link>
                   <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">ABOUT US</Link>
                   <Link to="/contact" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">CONTACT</Link>
                 </div>
@@ -654,15 +594,7 @@ export function Navbar() {
                   >
                     OFFICE DIRECTORY
                   </a>
-                  <a 
-                    href="https://dhenkanal-rs-so.vercel.app/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    DHENKANAL RS SO
-                  </a>
+                  <Link to="/photo-gallery" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">PHOTO GALLERY</Link>
                   <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">ABOUT US</Link>
                   <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">CONTACT</Link>
                 </div>

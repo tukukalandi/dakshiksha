@@ -19,6 +19,7 @@ import { POGuide } from './pages/POGuide';
 import { BDBranch } from './pages/BDBranch';
 import { Rules } from './pages/Rules';
 import { Contact } from './pages/Contact';
+import { PhotoGallery } from './pages/PhotoGallery';
 import { AccountantExam } from './pages/AccountantExam';
 import { SavingsBranch } from './pages/SavingsBranch';
 import { OtherBranch } from './pages/OtherBranch';
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/my-apps" element={<MyAppsPage />} />
               <Route path="/my-apps/:appId" element={<MyAppViewer />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/photo-gallery" element={<PhotoGallery />} />
               <Route path="/exams/accountant" element={<AccountantExam />} />
               <Route path="/branch/savings" element={<SavingsBranch />} />
               <Route path="/branch/other" element={<OtherBranch />} />

@@ -11,7 +11,7 @@ import {
   ExternalLink, FileText, LayoutGrid, Search, Users, Book,
   Globe, Mail, Phone, MapPin, Facebook, Twitter, Youtube, Instagram,
   Briefcase, Stamp, Package, MoreHorizontal, Calculator,
-  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge, ImageIcon, AppWindow
+  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge, ImageIcon, AppWindow, PiggyBank, HelpCircle, FileStack, Percent, UserCircle
 } from 'lucide-react';
 
 const SLIDES = [
@@ -82,17 +82,19 @@ const BRANCHES = [
 
 const SERVICES = [
   { title: "Track Consignment", icon: Search, color: "text-emerald-600", bg: "bg-emerald-50", link: "https://www.indiapost.gov.in/" },
-  { title: "PMV Ticket raise", icon: AlertCircle, color: "text-red-500", bg: "bg-red-50", link: "https://pmv-toolkit.vercel.app/" },
-  { title: "Locate Post Office", icon: MapPin, color: "text-postal-red", bg: "bg-red-50" },
   { title: "Internet Banking", icon: Landmark, color: "text-amber-600", bg: "bg-amber-50", link: "https://ebanking.indiapost.gov.in/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=DOP" },
   { title: "PLI / RPLI", icon: ShieldCheck, color: "text-blue-600", bg: "bg-blue-50" },
   { title: "Postage Calculator", icon: Calculator, color: "text-orange-500", bg: "bg-orange-50", link: "https://www.indiapost.gov.in/calculate-postage" },
   { title: "Aadhaar Services", icon: Fingerprint, color: "text-indigo-600", bg: "bg-indigo-50" },
   { title: "DIGIPIN", icon: Map, color: "text-rose-500", bg: "bg-rose-50", link: "https://dac.indiapost.gov.in/mydigipin/home" },
-  { title: "Download Forms", icon: FileDown, color: "text-slate-600", bg: "bg-slate-50", link: "https://postal-forms.vercel.app/" },
+  { title: "Download Forms", icon: FileDown, color: "text-slate-600", bg: "bg-slate-50", link: "https://indiapost-repository.vercel.app/" },
   { title: "Ready Reckoner", icon: Book, color: "text-amber-800", bg: "bg-amber-50", link: "https://drive.google.com/file/d/1FfyMvtgGqJIKPZ0u3dEi_l6npik7t9oL/view?usp=sharing" },
   { title: "IPPB Service", icon: Smartphone, color: "text-blue-500", bg: "bg-blue-50" },
-  { title: "Money Transfer", icon: Send, color: "text-cyan-600", bg: "bg-cyan-50" },
+  { title: "Post Office Savings Scheme", icon: PiggyBank, color: "text-emerald-600", bg: "bg-emerald-50", link: "https://www.indiapost.gov.in/banking-services/savings" },
+  { title: "Finacle Assistant", icon: HelpCircle, color: "text-blue-600", bg: "bg-blue-50", link: "https://finacle-user-guide.vercel.app/" },
+  { title: "Multi Receipt Converter", icon: FileStack, color: "text-purple-600", bg: "bg-purple-50", link: "https://finacle-user-guide.vercel.app/" },
+  { title: "Interest Rates", icon: Percent, color: "text-orange-600", bg: "bg-orange-50", link: "https://interest-rates-nine.vercel.app/" },
+  { title: "Customer Login", icon: UserCircle, color: "text-indigo-600", bg: "bg-indigo-50", link: "https://app.indiapost.gov.in/customer-selfservice/login" },
 ];
 
 const CARD_COLORS = [
@@ -112,7 +114,6 @@ export function Home() {
   const [notices, setNotices] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
-  const [photoGallery, setPhotoGallery] = useState<any[]>([]);
   const [activeNoticeTab, setActiveNoticeTab] = useState('NOTICE');
   const navigate = useNavigate();
 
@@ -168,24 +169,12 @@ export function Home() {
       setHeroSlides(sortedDocs);
     });
 
-    const qGallery = query(
-      collection(db, 'portal_documents'),
-      where('category', '==', 'Photo Gallery')
-    );
-    const unsubscribeGallery = onSnapshot(qGallery, (snapshot) => {
-      const sortedDocs = snapshot.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a: any, b: any) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-      setPhotoGallery(sortedDocs);
-    });
-
     return () => {
       clearInterval(timer);
       unsubscribe();
       unsubscribeNotices();
       unsubscribeAnnouncements();
       unsubscribeHero();
-      unsubscribeGallery();
     };
   }, [heroSlides.length]);
 
@@ -284,15 +273,15 @@ export function Home() {
 
 
 
-      {/* Our Services Section */}
+      {/* Quick Links Section */}
       <div className="bg-slate-50 py-20 border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-block bg-postal-yellow text-slate-900 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 shadow-sm">
-              Our Services
+              Quick Links
             </div>
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">What would you like to do today?</h2>
-            <p className="text-slate-500">Access all postal services of Dhenkanal Division</p>
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">Quick links section</h2>
+            <p className="text-slate-500">Important Web Portals</p>
             <div className="w-20 h-1 bg-postal-yellow mx-auto mt-6 rounded-full" />
           </div>
 
@@ -339,10 +328,10 @@ export function Home() {
       </div>
 
       {/* Main Content Section */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 space-y-12">
         
-        {/* Left: News & Announcements */}
-        <div className="lg:col-span-4 space-y-8">
+        {/* News & Announcements */}
+        <div className="space-y-8">
           <div>
             <div className="flex items-center justify-between border-b-2 border-postal-red pb-2 mb-4">
               <h2 className="text-xl font-bold text-postal-red flex items-center gap-2">
@@ -363,8 +352,8 @@ export function Home() {
           </div>
         </div>
 
-        {/* Right: Bulletin Boards */}
-        <div className="lg:col-span-8 space-y-8">
+        {/* Bulletin Boards */}
+        <div className="space-y-8">
           
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
             
@@ -467,41 +456,6 @@ export function Home() {
           </div>
         </div>
       </div>
-
-      {/* Photo Gallery Section */}
-      {photoGallery.length > 0 && (
-        <div className="bg-white py-16 border-t border-slate-200">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8 pb-2 border-b-2 border-postal-red">
-              <h2 className="text-2xl font-bold text-postal-red flex items-center gap-2">
-                <ImageIcon size={24} /> Photo Gallery
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {photoGallery.map((photo) => (
-                <div key={photo.id} className="group cursor-pointer">
-                  <div className="relative h-48 rounded-lg overflow-hidden bg-slate-100 shadow-sm border border-slate-200 mb-3">
-                    <img
-                      src={photo.link}
-                      alt={photo.name || 'Gallery Image'}
-                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <Search className="text-white w-8 h-8 opacity-75" />
-                    </div>
-                  </div>
-                  {photo.name && (
-                    <p className="text-sm font-medium text-slate-700 text-center break-words">
-                      {photo.name}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
