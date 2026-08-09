@@ -6,10 +6,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
-import { FloatingBackButton } from './components/FloatingBackButton';
-import { Breadcrumbs } from './components/Breadcrumbs';
+import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { ClassView } from './pages/ClassView';
 import { SubjectView } from './pages/SubjectView';
@@ -35,11 +32,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <Breadcrumbs />
-          <FloatingBackButton />
-          <main className="flex-grow">
+          <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/search" element={<SearchResults />} />
@@ -61,11 +54,9 @@ export default function App() {
               <Route path="/class/:classId/subject/:subjectId" element={<SubjectView />} />
               <Route path="/class/:classId/subject/:subjectId/chapter/:chapterId" element={<ChapterView />} />
             </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AuthProvider>
+          </Layout>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

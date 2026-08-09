@@ -50,21 +50,15 @@ export function MyAppViewer() {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
-      <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-10">
-        <div className="flex items-center gap-4">
-          <Link to="/my-apps" className="text-slate-500 hover:text-postal-red transition-colors flex items-center gap-1">
-            <ArrowLeft size={18} />
-            <span className="font-medium text-sm hidden sm:inline">Back</span>
-          </Link>
-          <div className="h-4 w-px bg-slate-300 hidden sm:block"></div>
-          <h1 className="font-bold text-slate-800 flex items-center gap-2">
-            <AppWindow size={18} className="text-postal-red" />
-            {app.name || 'Custom App'}
-          </h1>
-        </div>
-      </div>
-      <div className="flex-1 w-full relative bg-[#f8f9fa] overflow-hidden">
+    <div className="flex flex-col h-full flex-1 relative">
+      <Link 
+        to="/my-apps" 
+        className="absolute top-4 left-4 z-50 bg-white/90 backdrop-blur text-slate-700 hover:text-postal-red hover:bg-white shadow-md rounded-full px-4 py-2 transition-all flex items-center gap-2 border border-slate-200 font-medium text-sm"
+      >
+        <ArrowLeft size={18} />
+        Back
+      </Link>
+      <div className="flex-1 w-full h-full relative bg-[#f8f9fa] overflow-hidden">
         <iframe
           srcDoc={app.description || ''}
           title={app.name || 'Custom App'}

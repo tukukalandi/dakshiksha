@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar } from '../components/Navbar';
-import { Footer } from '../components/Footer';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Search, ImageIcon } from 'lucide-react';
@@ -29,12 +27,9 @@ export function PhotoGallery() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-      
-      <main className="flex-grow pt-24 pb-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    <div className="bg-slate-50 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-postal-red">
               <h2 className="text-2xl font-bold text-postal-red flex items-center gap-2 uppercase tracking-wide">
                 <ImageIcon size={24} /> Photo Gallery
@@ -70,11 +65,8 @@ export function PhotoGallery() {
                 <p>No photos available in the gallery.</p>
               </div>
             )}
-          </div>
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 }

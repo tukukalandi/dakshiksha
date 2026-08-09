@@ -191,8 +191,8 @@ export function PublicPortal() {
                         </div>
                       </div>
                       <div className="flex-1 p-5 flex flex-col justify-center min-w-0">
-                        <h3 className="text-white font-black text-lg uppercase tracking-tight break-words leading-tight group-hover:underline decoration-white/30 underline-offset-2">
-                          {subType || 'General Documents'}
+                        <h3 className="text-white font-black text-lg capitalize tracking-tight break-words leading-tight group-hover:underline decoration-white/30 underline-offset-2">
+                          {subType ? subType.toLowerCase() : 'general documents'}
                         </h3>
                         <p className="text-white/70 text-xs font-bold uppercase tracking-[0.15em] mt-2 opacity-90">
                           {groupedDocs[subType].length} Items in Category
@@ -246,8 +246,8 @@ export function PublicPortal() {
                             {typeInfo.label}
                           </span>
                         </div>
-                        <h3 className="text-white font-black text-base sm:text-lg lg:text-xl uppercase tracking-tight leading-tight group-hover:underline decoration-white/40 underline-offset-4">
-                          {doc.name}
+                        <h3 className="text-white font-black text-base sm:text-lg lg:text-xl capitalize tracking-tight leading-tight group-hover:underline decoration-white/40 underline-offset-4">
+                          {doc.name.toLowerCase()}
                         </h3>
                         {doc.description && (
                           <p className="text-white/80 text-[11px] leading-snug mt-2 line-clamp-2 italic font-medium opacity-90">

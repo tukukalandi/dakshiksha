@@ -906,6 +906,28 @@ export function AdminPortal() {
 
                   <div className="space-y-4">
                     <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="Enter App Name..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Or Upload HTML File</label>
+                      <input 
+                        type="file" 
+                        accept=".html" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setFormData(prev => ({
+                                ...prev, 
+                                description: event.target?.result as string, 
+                                title: prev.title || file.name.replace(/\.html$/i, '')
+                              }));
+                            };
+                            reader.readAsText(file);
+                          }
+                        }} 
+                        className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-postal-red/10 file:text-postal-red hover:file:bg-postal-red/20 cursor-pointer" 
+                      />
+                    </div>
                     <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Paste HTML code here..." className="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none font-mono" required />
                   </div>
 

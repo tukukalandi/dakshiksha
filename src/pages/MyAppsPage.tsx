@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { AppWindow, ChevronRight } from 'lucide-react';
+import { AppWindow } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CARD_COLORS = [
-  { bg: 'bg-blue-50', icon: 'text-blue-500', hoverBg: 'group-hover:bg-blue-500', hoverBorder: 'hover:border-blue-500/30', hoverIconText: 'group-hover:text-blue-500' },
-  { bg: 'bg-green-50', icon: 'text-green-500', hoverBg: 'group-hover:bg-green-500', hoverBorder: 'hover:border-green-500/30', hoverIconText: 'group-hover:text-green-500' },
-  { bg: 'bg-purple-50', icon: 'text-purple-500', hoverBg: 'group-hover:bg-purple-500', hoverBorder: 'hover:border-purple-500/30', hoverIconText: 'group-hover:text-purple-500' },
-  { bg: 'bg-orange-50', icon: 'text-orange-500', hoverBg: 'group-hover:bg-orange-500', hoverBorder: 'hover:border-orange-500/30', hoverIconText: 'group-hover:text-orange-500' },
-  { bg: 'bg-pink-50', icon: 'text-pink-500', hoverBg: 'group-hover:bg-pink-500', hoverBorder: 'hover:border-pink-500/30', hoverIconText: 'group-hover:text-pink-500' },
-  { bg: 'bg-teal-50', icon: 'text-teal-500', hoverBg: 'group-hover:bg-teal-500', hoverBorder: 'hover:border-teal-500/30', hoverIconText: 'group-hover:text-teal-500' },
-  { bg: 'bg-indigo-50', icon: 'text-indigo-500', hoverBg: 'group-hover:bg-indigo-500', hoverBorder: 'hover:border-indigo-500/30', hoverIconText: 'group-hover:text-indigo-500' },
-  { bg: 'bg-amber-50', icon: 'text-amber-500', hoverBg: 'group-hover:bg-amber-500', hoverBorder: 'hover:border-amber-500/30', hoverIconText: 'group-hover:text-amber-500' }
+  'bg-[#5b6bb0]',
+  'bg-[#4fb794]',
+  'bg-[#c64841]',
+  'bg-[#db8b2a]',
+  'bg-[#9652b4]',
+  'bg-[#48c36b]',
+  'bg-[#3b83d1]',
+  'bg-[#eab237]',
+  'bg-[#859497]',
+  'bg-[#d7742b]',
+  'bg-[#4359a8]',
+  'bg-[#359b92]',
+  'bg-[#c33140]',
+  'bg-[#6caec8]',
+  'bg-gradient-to-br from-[#87c947] to-[#c64841]',
+  'bg-[#5b95d6]',
+  'bg-[#15274d]',
+  'bg-[#8072d6]',
+  'bg-[#3c4651]',
+  'bg-[#f88158]'
 ];
 
 export function MyAppsPage() {
@@ -35,7 +47,7 @@ export function MyAppsPage() {
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[95%] px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-black text-postal-dark-maroon uppercase mb-4 tracking-tight flex justify-center items-center gap-3">
             <AppWindow size={36} className="text-postal-red" />
@@ -47,32 +59,24 @@ export function MyAppsPage() {
         </div>
 
         {myApps.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {myApps.map((app, index) => {
-              const color = CARD_COLORS[index % CARD_COLORS.length];
+              const colorClass = CARD_COLORS[index % CARD_COLORS.length];
               return (
                 <Link
                   to={`/my-apps/${app.id}`}
                   key={app.id} 
-                  className={`group flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${color.hoverBorder}`}
+                  className={`group flex items-center justify-center p-6 min-h-[140px] rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${colorClass}`}
                 >
-                  <div className="p-8 flex items-center justify-center flex-1">
-                    <div className={`w-20 h-20 ${color.bg} rounded-full flex items-center justify-center ${color.hoverBg} transition-colors duration-300`}>
-                      <AppWindow size={40} className={`${color.icon} group-hover:text-white transition-colors duration-300`} />
-                    </div>
-                  </div>
-                  <div className="bg-slate-50 border-t border-slate-100 p-5 flex items-center justify-between">
-                    <h3 className="font-bold text-slate-800 text-lg break-words">
-                       {app.name || 'Custom App'}
-                    </h3>
-                    <ChevronRight size={20} className={`text-slate-400 ${color.hoverIconText} transition-colors`} />
-                  </div>
+                  <h3 className="font-bold text-white text-base md:text-lg text-center break-words leading-tight">
+                     {app.name || 'Custom App'}
+                  </h3>
                 </Link>
               );
             })}
           </div>
         ) : (
-          <div className="text-center p-12 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+          <div className="text-center p-12 bg-white rounded-2xl border-2 border-dashed border-slate-200 max-w-4xl mx-auto">
             <AppWindow size={48} className="mx-auto text-slate-300 mb-4" />
             <p className="text-lg font-medium text-slate-500">No apps available at the moment.</p>
           </div>
