@@ -94,6 +94,7 @@ const SERVICES = [
   { title: "Multi Receipt Converter", icon: FileStack, color: "text-purple-600", bg: "bg-purple-50", link: "https://multi-receipt.vercel.app/" },
   { title: "Interest Rates", icon: Percent, color: "text-orange-600", bg: "bg-orange-50", link: "https://interest-rates-nine.vercel.app/" },
   { title: "Customer Login", icon: UserCircle, color: "text-indigo-600", bg: "bg-indigo-50", link: "https://app.indiapost.gov.in/customer-selfservice/login" },
+  { title: "Tariff Calculator", icon: Calculator, color: "text-red-500", bg: "bg-red-50", link: "https://tariff-calculator-nu.vercel.app/" },
 ];
 
 const CARD_COLORS = [
