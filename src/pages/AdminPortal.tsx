@@ -8,7 +8,7 @@ import ReactPlayer from 'react-player';
 import { 
   LayoutDashboard, FileText, FileSearch, 
   ListOrdered, Megaphone, ClipboardList, 
-  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video, AppWindow, Edit2, X, Briefcase
+  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video, AppWindow, Edit2, X, Briefcase, ChevronDown
 } from 'lucide-react';
 
 interface HomepageDoc {
@@ -855,13 +855,32 @@ export function AdminPortal() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tag/Category (Optional)</label>
-                    <input 
-                      type="text"
-                      value={docFormData.subType}
-                      onChange={(e) => setDocFormData({...docFormData, subType: e.target.value})}
-                      placeholder="e.g. SAVINGS"
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
-                    />
+                    {activeTab === 'Forms' ? (
+                      <div className="relative">
+                        <select
+                          value={docFormData.subType}
+                          onChange={(e) => setDocFormData({...docFormData, subType: e.target.value})}
+                          className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none appearance-none cursor-pointer"
+                        >
+                          <option value="">Select a category...</option>
+                          <option value="Savings">Savings</option>
+                          <option value="PLI/RPLI">PLI/RPLI</option>
+                          <option value="ML/BD">ML/BD</option>
+                          <option value="CCS">CCS</option>
+                          <option value="Welfare">Welfare</option>
+                          <option value="Others">Others</option>
+                        </select>
+                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      </div>
+                    ) : (
+                      <input 
+                        type="text"
+                        value={docFormData.subType}
+                        onChange={(e) => setDocFormData({...docFormData, subType: e.target.value})}
+                        placeholder="e.g. SAVINGS"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
+                      />
+                    )}
                   </div>
                   <div className="space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex bg-slate-100 p-1 rounded-lg">

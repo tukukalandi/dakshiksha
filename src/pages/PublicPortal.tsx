@@ -149,7 +149,7 @@ export function PublicPortal() {
                 </span>
               </div>
               <h1 className="text-4xl font-display font-bold text-slate-900 leading-tight">
-                {activeSubType !== null ? (activeSubType || categoryName) : categoryName}
+                {isDirectView ? categoryName : (activeSubType !== null ? (activeSubType || categoryName) : categoryName)}
               </h1>
               {activeSubType === null && (
                 <p className="text-slate-600 mt-2 max-w-2xl">
@@ -226,32 +226,32 @@ export function PublicPortal() {
                 exit={{ opacity: 0, x: -20 }}
                 className={categoryName === 'Forms' ? "flex flex-col gap-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}
               >
-                {groupedDocs[activeSubType as string]?.map((doc, i) => {
+                {(isDirectView ? filteredDocs : groupedDocs[activeSubType as string])?.map((doc, i) => {
                   const typeInfo = getFileTypeInfo(doc.link);
                   const color = CARD_COLORS[i % CARD_COLORS.length];
                   
                   if (categoryName === 'Forms') {
                     return (
-                      <div key={doc.id} className="flex items-center justify-between p-4 bg-[#1e2330] border-l-4 border-postal-red rounded-sm">
+                      <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4 bg-[#1e2330] border-l-4 border-postal-red rounded-sm">
                         <div className="flex flex-col gap-1 min-w-0">
                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{doc.subType || 'SAVINGS'}</span>
-                          <h3 className="text-white font-bold text-base truncate">{doc.name}</h3>
-                          <p className="text-slate-400 text-xs truncate">{doc.name}</p>
+                          <h3 className="text-white font-bold text-base break-words sm:truncate">{doc.name}</h3>
+                          {doc.description && <p className="text-slate-400 text-xs break-words sm:truncate">{doc.description}</p>}
                         </div>
-                        <div className="flex items-center gap-3 shrink-0 ml-4">
+                        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
                           <a
                             href={doc.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded font-bold text-sm hover:bg-red-200 transition-colors"
+                            className="flex items-center gap-2 bg-red-100 text-red-600 px-3 sm:px-4 py-2 rounded font-bold text-sm hover:bg-red-200 transition-colors whitespace-nowrap"
                           >
-                            <FileText size={16} /> View PDF
+                            <FileText size={16} /> <span className="hidden xs:inline">View PDF</span><span className="xs:hidden">PDF</span>
                           </a>
                           <a
                              href={doc.link}
                              target="_blank"
                              rel="noopener noreferrer"
-                             className="flex items-center justify-center w-9 h-9 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
+                             className="flex items-center justify-center w-9 h-9 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors shrink-0"
                           >
                             <MessageSquare size={16} />
                           </a>
@@ -259,7 +259,7 @@ export function PublicPortal() {
                              href={doc.link}
                              target="_blank"
                              rel="noopener noreferrer"
-                             className="flex items-center justify-center w-9 h-9 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                             className="flex items-center justify-center w-9 h-9 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors shrink-0"
                           >
                             <LinkIcon size={16} />
                           </a>
