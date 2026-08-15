@@ -7,7 +7,7 @@ import {
   FileText, ExternalLink, ChevronRight, 
   ArrowLeft, Search, Filter, BookOpen,
   Download, Clock, Tag, LayoutPanelLeft,
-  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText
+  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText, MessageCircle
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -57,6 +57,17 @@ const CARD_COLORS = [
   { bg: 'bg-[#d8a100]', dark: 'bg-[#b78a00]', shadow: 'shadow-amber-500/20' }, // Amber
   { bg: 'bg-[#43a047]', dark: 'bg-[#2e7d32]', shadow: 'shadow-green-500/20' }, // Green
   { bg: 'bg-[#8e24aa]', dark: 'bg-[#6a1b9a]', shadow: 'shadow-fuchsia-500/20' }, // Deep Purple
+];
+
+const PILL_COLORS = [
+  'bg-purple-100 text-purple-700',
+  'bg-rose-100 text-rose-700',
+  'bg-blue-100 text-blue-700',
+  'bg-red-100 text-red-700',
+  'bg-emerald-100 text-emerald-700',
+  'bg-amber-100 text-amber-700',
+  'bg-indigo-100 text-indigo-700',
+  'bg-pink-100 text-pink-700'
 ];
 
 export function PublicPortal() {
@@ -231,19 +242,44 @@ export function PublicPortal() {
                   const color = CARD_COLORS[i % CARD_COLORS.length];
                   
                   if (categoryName === 'Forms') {
+                    const dateObj = doc.createdAt?.toDate();
+                    const day = dateObj ? dateObj.toLocaleDateString('en-IN', { day: '2-digit' }) : '01';
+                    const month = dateObj ? dateObj.toLocaleDateString('en-IN', { month: 'short' }) : 'Jan';
+                    const yearStr = dateObj ? dateObj.toLocaleDateString('en-IN', { year: '2-digit' }) : '24';
+                    const monthYear = `${month} '${yearStr}`;
+                    const time = dateObj ? dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '00:00';
+                    const pillColorClass = PILL_COLORS[i % PILL_COLORS.length];
+
                     return (
-                      <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4 bg-[#1e2330] border-l-4 border-postal-red rounded-sm">
-                        <div className="flex flex-col gap-1 min-w-0">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{doc.subType || 'SAVINGS'}</span>
-                          <h3 className="text-white font-bold text-base break-words sm:truncate">{doc.name}</h3>
-                          {doc.description && <p className="text-slate-400 text-xs break-words sm:truncate">{doc.description}</p>}
+                      <div key={doc.id} className="flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-md transition-shadow">
+                        {/* Left Date Block */}
+                        <div className="bg-[#5b1e25] text-white w-full sm:w-32 flex flex-col items-center justify-center py-4 sm:py-6 shrink-0">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-3xl sm:text-4xl font-black tracking-tighter">{day}</span>
+                            <span className="text-[11px] font-bold opacity-90">{monthYear}</span>
+                          </div>
+                          <span className="text-[10px] mt-1 font-medium opacity-70 tracking-widest">{time}</span>
                         </div>
-                        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
+                        
+                        {/* Middle Content Block */}
+                        <div className="flex-1 p-4 sm:p-6 flex flex-col justify-center min-w-0">
+                          <div className="mb-3">
+                            <span className={cn("text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1 rounded-full inline-block", pillColorClass)}>
+                              {doc.subType || 'GENERAL'}
+                            </span>
+                          </div>
+                          <h3 className="text-slate-800 font-bold text-base sm:text-[17px] leading-snug break-words">
+                            {doc.name}
+                          </h3>
+                        </div>
+
+                        {/* Right Actions Block */}
+                        <div className="flex items-center gap-3 p-4 sm:p-6 shrink-0 bg-slate-50/50 sm:bg-transparent border-t sm:border-t-0 border-slate-100 sm:border-l">
                           <a
                             href={doc.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-red-100 text-red-600 px-3 sm:px-4 py-2 rounded font-bold text-sm hover:bg-red-200 transition-colors whitespace-nowrap"
+                            className="flex items-center gap-2 bg-rose-100/80 text-rose-700 px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-rose-200 transition-colors whitespace-nowrap"
                           >
                             <FileText size={16} /> <span className="hidden xs:inline">View PDF</span><span className="xs:hidden">PDF</span>
                           </a>
@@ -251,17 +287,17 @@ export function PublicPortal() {
                              href={doc.link}
                              target="_blank"
                              rel="noopener noreferrer"
-                             className="flex items-center justify-center w-9 h-9 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors shrink-0"
+                             className="flex items-center justify-center w-10 h-10 bg-emerald-100/80 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors shrink-0"
                           >
-                            <MessageSquare size={16} />
+                             <MessageCircle size={18} />
                           </a>
                           <a
                              href={doc.link}
                              target="_blank"
                              rel="noopener noreferrer"
-                             className="flex items-center justify-center w-9 h-9 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors shrink-0"
+                             className="flex items-center justify-center w-10 h-10 bg-blue-100/80 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shrink-0"
                           >
-                            <LinkIcon size={16} />
+                            <LinkIcon size={18} />
                           </a>
                         </div>
                       </div>
