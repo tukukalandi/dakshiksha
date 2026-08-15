@@ -7,7 +7,7 @@ import {
   FileText, ExternalLink, ChevronRight, 
   ArrowLeft, Search, Filter, BookOpen,
   Download, Clock, Tag, LayoutPanelLeft,
-  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText, MessageCircle
+  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText, MessageCircle, Check
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -69,6 +69,28 @@ const PILL_COLORS = [
   'bg-indigo-100 text-indigo-700',
   'bg-pink-100 text-pink-700'
 ];
+
+const CopyLinkButton = ({ link }: { link: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      title="Copy Link"
+      className="flex items-center justify-center w-10 h-10 bg-blue-100/80 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shrink-0"
+    >
+      {copied ? <Check size={18} /> : <LinkIcon size={18} />}
+    </button>
+  );
+};
 
 export function PublicPortal() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -276,21 +298,15 @@ export function PublicPortal() {
                             <FileText size={16} /> <span className="hidden xs:inline">View PDF</span><span className="xs:hidden">PDF</span>
                           </a>
                           <a
-                             href={doc.link}
+                             href={`https://wa.me/?text=${encodeURIComponent(doc.name + ' - ' + doc.link)}`}
                              target="_blank"
                              rel="noopener noreferrer"
+                             title="Share via WhatsApp"
                              className="flex items-center justify-center w-10 h-10 bg-emerald-100/80 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors shrink-0"
                           >
                              <MessageCircle size={18} />
                           </a>
-                          <a
-                             href={doc.link}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className="flex items-center justify-center w-10 h-10 bg-blue-100/80 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shrink-0"
-                          >
-                            <LinkIcon size={18} />
-                          </a>
+                          <CopyLinkButton link={doc.link} />
                         </div>
                       </div>
                     );
