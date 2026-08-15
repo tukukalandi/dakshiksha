@@ -4,7 +4,7 @@ import {
   Search, Menu, X, ChevronRight, ChevronDown, Globe, Type, Eye, 
   Mail, Briefcase, Stamp, Package, Users, MoreHorizontal,
   UserCircle, FileText, Download, Calendar, ArrowLeft,
-  GraduationCap, Book, BookOpen, LayoutGrid, Clock, Moon
+  GraduationCap, Book, BookOpen, LayoutGrid, Clock, Moon, Image as ImageIcon, Info, Phone, ExternalLink
 } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -145,12 +145,12 @@ export function Navbar() {
   ];
 
   const extraMenuOptions = [
-    ...(isAdmin ? [{ name: 'Internal Portal', icon: LayoutGrid, link: '/internal-portal' }] : []),
-    { name: 'Staff Corner', icon: UserCircle, link: '/staff-corner' },
-    { name: 'Latest Circulars', icon: FileText, link: '/circulars' },
-    { name: 'Postal Forms', icon: Download, link: 'https://postal-forms.vercel.app/', external: true },
-    { name: 'Download Forms', icon: Download, link: '/forms' },
-    { name: 'Holiday Calendar', icon: Calendar, link: 'https://drive.google.com/file/d/1OTZ0aGL93WI7hGR5sfZAkM_xSwoFxSzn/view?usp=drive_link', external: true },
+    { name: 'India Post Website', icon: ExternalLink, link: 'https://www.indiapost.gov.in/', external: true },
+    { name: 'Dhenkanal Postal Division', icon: ExternalLink, link: 'https://dhenkanalpostaldivision.org/', external: true },
+    { name: 'Employee Site', icon: Users, link: '/portal/employee-site' },
+    { name: 'Photo Gallery', icon: ImageIcon, link: '/photo-gallery' },
+    { name: 'About Us', icon: Info, link: '/about' },
+    { name: 'Contact', icon: Phone, link: '/contact' },
   ];
 
   const getClassesForSubject = (searchTerms: string[]) => {
