@@ -242,23 +242,15 @@ export function PublicPortal() {
                   const color = CARD_COLORS[i % CARD_COLORS.length];
                   
                   if (categoryName === 'Forms') {
-                    const dateObj = doc.createdAt?.toDate();
-                    const day = dateObj ? dateObj.toLocaleDateString('en-IN', { day: '2-digit' }) : '01';
-                    const month = dateObj ? dateObj.toLocaleDateString('en-IN', { month: 'short' }) : 'Jan';
-                    const yearStr = dateObj ? dateObj.toLocaleDateString('en-IN', { year: '2-digit' }) : '24';
-                    const monthYear = `${month} '${yearStr}`;
-                    const time = dateObj ? dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '00:00';
                     const pillColorClass = PILL_COLORS[i % PILL_COLORS.length];
 
                     return (
                       <div key={doc.id} className="flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-md transition-shadow">
-                        {/* Left Date Block */}
-                        <div className="bg-[#5b1e25] text-white w-full sm:w-32 flex flex-col items-center justify-center py-4 sm:py-6 shrink-0">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-3xl sm:text-4xl font-black tracking-tighter">{day}</span>
-                            <span className="text-[11px] font-bold opacity-90">{monthYear}</span>
-                          </div>
-                          <span className="text-[10px] mt-1 font-medium opacity-70 tracking-widest">{time}</span>
+                        {/* Left Category Block */}
+                        <div className="bg-[#5b1e25] text-white w-full sm:w-32 flex flex-col items-center justify-center py-4 sm:py-6 shrink-0 px-2 text-center">
+                          <span className="text-xs sm:text-sm font-black uppercase tracking-widest break-words line-clamp-3">
+                            {doc.subType || 'GENERAL'}
+                          </span>
                         </div>
                         
                         {/* Middle Content Block */}
