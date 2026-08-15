@@ -514,23 +514,12 @@ export function Navbar() {
                   >
                     Dhenkanal Postal Division Website
                   </a>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowBDAuth(true);
-                    }}
-                    className="w-full text-left block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
-                  >
-                    BD Branch Website
-                  </button>
-                  <a 
-                    href="https://office-directory.vercel.app/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <Link 
+                    to="/portal/employee-site" 
                     className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
                   >
-                    Office Directory
-                  </a>
+                    Employee Site
+                  </Link>
                   <div className="h-[1px] bg-slate-100 my-1" />
                   <Link to="/photo-gallery" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">PHOTO GALLERY</Link>
                   <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">ABOUT US</Link>
@@ -575,25 +564,13 @@ export function Navbar() {
                   >
                     Dhenkanal Postal Division Website
                   </a>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsMenuOpen(false);
-                      setShowBDAuth(true);
-                    }}
-                    className="w-full text-left block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
-                  >
-                    BD Branch Website
-                  </button>
-                  <a 
-                    href="https://office-directory.vercel.app/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red"
+                  <Link 
+                    to="/portal/employee-site" 
+                    className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red uppercase"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    OFFICE DIRECTORY
-                  </a>
+                    Employee Site
+                  </Link>
                   <Link to="/photo-gallery" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">PHOTO GALLERY</Link>
                   <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">ABOUT US</Link>
                   <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-semibold text-slate-600 hover:text-postal-red">CONTACT</Link>

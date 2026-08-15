@@ -8,7 +8,7 @@ import ReactPlayer from 'react-player';
 import { 
   LayoutDashboard, FileText, FileSearch, 
   ListOrdered, Megaphone, ClipboardList, 
-  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video, AppWindow, Edit2, X
+  Image as ImageIcon, Images, FilePlus, Trash2, Plus, UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, Video, AppWindow, Edit2, X, Briefcase
 } from 'lucide-react';
 
 interface HomepageDoc {
@@ -326,6 +326,7 @@ export function AdminPortal() {
     { name: 'My Apps', icon: AppWindow },
     { name: 'Hero Slider', icon: Images },
     { name: 'Forms', icon: ListOrdered },
+    { name: 'Employee Site', icon: Briefcase },
   ];
 
   return (
@@ -821,6 +822,83 @@ export function AdminPortal() {
                     ))}
                   </AnimatePresence>
                   {portalDocs.filter(d => d.category === 'Notices & Circulars').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No notices published yet.</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'Employee Site' ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">EMPLOYEE SITE</h1>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Upload files and links to the employee portal.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+                <h2 className="text-sm font-bold text-postal-red uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                  Add New Document/Link
+                </h2>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  await handleDocSubmit(e, 'Employee Site');
+                }} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Document Title *</label>
+                    <textarea 
+                      value={docFormData.fileName}
+                      onChange={(e) => setDocFormData({...docFormData, fileName: e.target.value})}
+                      placeholder="Enter the title..."
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none resize-none h-24"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                      <button type="button" onClick={() => setUploadMode('file')} className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'file' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}>Upload File</button>
+                      <button type="button" onClick={() => setUploadMode('link')} className={`flex-1 text-xs font-bold uppercase tracking-wider py-2 rounded-md transition-all ${uploadMode === 'link' ? 'bg-white shadow-sm text-postal-red' : 'text-slate-500 hover:text-slate-700'}`}>External Link</button>
+                    </div>
+                    {uploadMode === 'file' ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center w-full">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <UploadCloud className="w-8 h-8 mb-3 text-slate-400" />
+                              <p className="mb-2 text-sm text-slate-500">Click to upload or drag</p>
+                            </div>
+                            <input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" className="hidden" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} required={uploadMode === 'file'} />
+                          </label>
+                        </div>
+                        {selectedFile && <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 mt-2"><CheckCircle2 size={16} /> {selectedFile.name}</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <input type="url" value={docFormData.externalLink} onChange={(e) => setDocFormData({...docFormData, externalLink: e.target.value})} placeholder="https://..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none" required={uploadMode === 'link'} />
+                      </div>
+                    )}
+                  </div>
+                  <button type="submit" disabled={loading} className="w-full bg-[#D62828] hover:bg-[#b01e1e] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors mt-4 shadow-lg disabled:opacity-50">
+                    {loading ? 'Processing...' : <><Plus size={20} /> Publish Link</>}
+                  </button>
+                </form>
+              </div>
+              <div className="lg:col-span-7">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Published Items ({portalDocs.filter(d => d.category === 'Employee Site').length})</h2>
+                <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {portalDocs.filter(d => d.category === 'Employee Site').map((doc) => (
+                      <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-slate-800 text-base mb-2">{doc.name}</h3>
+                          <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
+                            <LinkIcon size={12} /> View File/Link
+                          </a>
+                        </div>
+                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {portalDocs.filter(d => d.category === 'Employee Site').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No items published yet.</div>}
                 </div>
               </div>
             </div>

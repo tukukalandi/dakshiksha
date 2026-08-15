@@ -43,7 +43,8 @@ const CATEGORY_MAP: Record<string, string> = {
   'po-guide': 'PO GUIDE',
   'manuals': 'POSTAL MANUALS',
   'accountant': 'ACCOUNTANT EXAM',
-  'others': 'OTHERS'
+  'others': 'OTHERS',
+  'employee-site': 'Employee Site'
 };
 
 const CARD_COLORS = [
@@ -103,6 +104,9 @@ export function PublicPortal() {
 
   const subTypes = Object.keys(groupedDocs).sort();
 
+  const isDirectView = categoryName === 'Employee Site' || (subTypes.length === 1 && subTypes[0] === '');
+  const activeSubType = isDirectView ? (subTypes[0] || '') : selectedSubType;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -117,29 +121,36 @@ export function PublicPortal() {
         {/* Header */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <button 
-              onClick={() => selectedSubType !== null ? setSelectedSubType(null) : undefined}
-              className={cn(
-                "inline-flex items-center text-sm transition-colors group",
-                selectedSubType !== null ? "text-postal-red font-bold hover:underline" : "text-slate-500 hover:text-postal-red"
-              )}
-            >
-              <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-              {selectedSubType !== null ? "Back to Sub-Types" : <Link to="/">Back to Home</Link>}
-            </button>
+            {(!isDirectView && activeSubType !== null) ? (
+              <button 
+                onClick={() => setSelectedSubType(null)}
+                className="inline-flex items-center text-sm transition-colors group text-postal-red font-bold hover:underline"
+              >
+                <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
+                Back to Sub-Types
+              </button>
+            ) : (
+              <Link 
+                to="/"
+                className="inline-flex items-center text-sm transition-colors group text-slate-500 hover:text-postal-red"
+              >
+                <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
+                Back to Home
+              </Link>
+            )}
           </div>
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-3 py-1 bg-postal-red/10 text-postal-red text-xs font-bold rounded-full uppercase tracking-wider">
-                  {selectedSubType !== null ? "Documents" : "Resource Portal"}
+                  {activeSubType !== null ? "Documents" : "Resource Portal"}
                 </span>
               </div>
               <h1 className="text-4xl font-display font-bold text-slate-900 leading-tight">
-                {selectedSubType !== null ? (selectedSubType || 'Documents') : categoryName}
+                {activeSubType !== null ? (activeSubType || categoryName) : categoryName}
               </h1>
-              {selectedSubType === null && (
+              {activeSubType === null && (
                 <p className="text-slate-600 mt-2 max-w-2xl">
                   Select a category below to explore curated study materials for the {categoryName}.
                 </p>
@@ -150,7 +161,7 @@ export function PublicPortal() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
                 type="text"
-                placeholder={selectedSubType !== null ? "Search documents..." : "Search categories..."}
+                placeholder={activeSubType !== null ? "Search documents..." : "Search categories..."}
                 value={searchQuery || ''}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm"
@@ -162,7 +173,7 @@ export function PublicPortal() {
         {/* Content */}
         {subTypes.length > 0 ? (
           <AnimatePresence mode="wait">
-            {selectedSubType === null ? (
+            {activeSubType === null ? (
               // Sub-Type Cards Grid
               <motion.div 
                 key="subtypes"
@@ -214,7 +225,7 @@ export function PublicPortal() {
                 exit={{ opacity: 0, x: -20 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
-                {groupedDocs[selectedSubType]?.map((doc, i) => {
+                {groupedDocs[activeSubType as string]?.map((doc, i) => {
                   const typeInfo = getFileTypeInfo(doc.link);
                   const color = CARD_COLORS[i % CARD_COLORS.length];
                   
