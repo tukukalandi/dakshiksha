@@ -889,12 +889,43 @@ export function AdminPortal() {
                     {portalDocs.filter(d => d.category === 'Employee Site').map((doc) => (
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-slate-800 text-base mb-2">{doc.name}</h3>
+                          {editingDocId === doc.id ? (
+                            <input
+                              type="text"
+                              value={editDocName}
+                              onChange={(e) => setEditDocName(e.target.value)}
+                              className="w-full px-3 py-1 mb-2 font-bold text-slate-800 text-base border-b border-postal-red/50 focus:border-postal-red focus:outline-none bg-slate-50 rounded"
+                              placeholder="Document Name"
+                              autoFocus
+                            />
+                          ) : (
+                            <h3 className="font-bold text-slate-800 text-base mb-2">{doc.name}</h3>
+                          )}
                           <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
                             <LinkIcon size={12} /> View File/Link
                           </a>
                         </div>
-                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {editingDocId === doc.id ? (
+                            <>
+                              <button onClick={() => handleUpdateDoc(doc.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Save">
+                                <CheckCircle2 size={20} />
+                              </button>
+                              <button onClick={() => setEditingDocId(null)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-colors" title="Cancel">
+                                <X size={20} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => { setEditingDocId(doc.id); setEditDocName(doc.name); }} className="p-2 text-slate-400 hover:text-postal-red hover:bg-red-50 rounded-lg transition-colors" title="Edit Name">
+                                <Edit2 size={20} />
+                              </button>
+                              <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                                <Trash2 size={20} />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </motion.div>
                     ))}
                   </AnimatePresence>
