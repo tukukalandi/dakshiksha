@@ -24,6 +24,8 @@ interface SearchItem {
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
+  const [isOthersOpen, setIsOthersOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('Select Language');
   const [searchQuery, setSearchQuery] = useState('');
@@ -439,13 +441,24 @@ export function Navbar() {
             </div>
 
             {/* User Auth Section */}
-            <div className="relative group ml-2">
+            <div 
+              className="relative group ml-2"
+              onMouseEnter={() => setIsProfileOpen(true)}
+              onMouseLeave={() => setIsProfileOpen(false)}
+            >
               <button 
                 className={cn(
                   "flex items-center gap-2 p-2 rounded-sm border-2 transition-all",
                   isAdmin ? "bg-postal-yellow text-black border-black" : "bg-white/10 text-white border-white/20 hover:bg-white/20"
                 )}
-                onClick={() => !user && login()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!user) {
+                    login();
+                  } else {
+                    setIsProfileOpen(!isProfileOpen);
+                  }
+                }}
               >
                 {user ? (
                   <>
@@ -461,19 +474,22 @@ export function Navbar() {
               </button>
               
               {user && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-2xl border-2 border-black hidden group-hover:block z-50">
+                <div className={`absolute right-0 top-full mt-2 w-48 bg-white shadow-2xl border-2 border-black z-50 ${isProfileOpen ? 'block' : 'hidden md:group-hover:block'}`}>
                   <div className="p-3 border-b-2 border-black/10">
                     <p className="text-[10px] font-bold text-slate-400 uppercase">Logged in as</p>
                     <p className="text-xs font-bold text-slate-800 truncate">{user.email}</p>
                   </div>
                   {isAdmin && (
-                    <Link to="/internal-portal" className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-black/5">
+                    <Link to="/internal-portal" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-black/5">
                       <LayoutGrid size={16} className="text-postal-red" />
                       Internal Portal
                     </Link>
                   )}
                   <button 
-                    onClick={logout}
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      logout();
+                    }}
                     className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 text-left"
                   >
                     Logout
@@ -493,16 +509,27 @@ export function Navbar() {
               <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">HOME</Link>
               <Link to="/my-apps" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">MY APP</Link>
               
-              <div className="relative group h-12 flex items-center">
-                <button className="hover:text-postal-yellow transition-colors flex items-center gap-1 tracking-widest uppercase">
-                  OTHERS <ChevronRight size={14} className="rotate-90 opacity-50" />
+              <div 
+                className="relative group h-12 flex items-center"
+                onMouseEnter={() => setIsOthersOpen(true)}
+                onMouseLeave={() => setIsOthersOpen(false)}
+              >
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOthersOpen(!isOthersOpen);
+                  }}
+                  className="hover:text-postal-yellow transition-colors flex items-center gap-1 tracking-widest uppercase"
+                >
+                  OTHERS <ChevronRight size={14} className={`opacity-50 transition-transform ${isOthersOpen ? '-rotate-90' : 'rotate-90'}`} />
                 </button>
-                <div className="absolute left-0 top-full hidden group-hover:block w-72 bg-white shadow-2xl border border-slate-200 py-2 z-50">
+                <div className={`absolute left-0 top-full w-72 bg-white shadow-2xl border border-slate-200 py-2 z-50 ${isOthersOpen ? 'block' : 'hidden md:group-hover:block'}`}>
                   <a 
                     href="https://www.indiapost.gov.in/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                    onClick={() => setIsOthersOpen(false)}
                   >
                     India Post Website
                   </a>
@@ -511,19 +538,21 @@ export function Navbar() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                    onClick={() => setIsOthersOpen(false)}
                   >
                     Dhenkanal Postal Division Website
                   </a>
                   <Link 
                     to="/portal/employee-site" 
                     className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors uppercase"
+                    onClick={() => setIsOthersOpen(false)}
                   >
                     Employee Site
                   </Link>
                   <div className="h-[1px] bg-slate-100 my-1" />
-                  <Link to="/photo-gallery" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">PHOTO GALLERY</Link>
-                  <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">ABOUT US</Link>
-                  <Link to="/contact" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors">CONTACT</Link>
+                  <Link to="/photo-gallery" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors" onClick={() => setIsOthersOpen(false)}>PHOTO GALLERY</Link>
+                  <Link to="/about" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors" onClick={() => setIsOthersOpen(false)}>ABOUT US</Link>
+                  <Link to="/contact" className="block px-6 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-postal-red text-sm font-bold transition-colors" onClick={() => setIsOthersOpen(false)}>CONTACT</Link>
                 </div>
               </div>
               
