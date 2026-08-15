@@ -74,8 +74,8 @@ export function MyAppsPage() {
                         EXTERNAL LINK
                       </span>
                     </div>
-                    <h3 className="text-white font-black text-base sm:text-lg lg:text-xl capitalize tracking-tight leading-tight group-hover:underline decoration-white/40 underline-offset-4 line-clamp-2">
-                      {app.name ? app.name.toLowerCase() : 'custom app'}
+                    <h3 className="text-white font-black text-base sm:text-lg lg:text-xl tracking-tight leading-tight group-hover:underline decoration-white/40 underline-offset-4 line-clamp-2">
+                      {app.name ? app.name : 'Custom App'}
                     </h3>
                   </div>
 

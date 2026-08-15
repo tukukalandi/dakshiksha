@@ -42,6 +42,10 @@ export function AdminPortal() {
   const [editingAppId, setEditingAppId] = useState<string | null>(null);
   const [editAppName, setEditAppName] = useState('');
   const [editAppDescription, setEditAppDescription] = useState('');
+  
+  const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editDocName, setEditDocName] = useState('');
+
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const [formData, setFormData] = useState({
@@ -138,6 +142,22 @@ export function AdminPortal() {
     } catch (error) {
       console.error("Update Error:", error);
       setStatusMessage({ type: 'error', text: 'Failed to update app.' });
+    }
+  };
+
+  const handleUpdateDoc = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'portal_documents', id), {
+        name: editDocName,
+        updatedAt: serverTimestamp()
+      });
+      setEditingDocId(null);
+      setStatusMessage({ type: 'success', text: 'Document renamed successfully.' });
+      setTimeout(() => setStatusMessage(null), 3000);
+    } catch (error) {
+      console.error("Update Error:", error);
+      setStatusMessage({ type: 'error', text: 'Failed to rename document.' });
+      setTimeout(() => setStatusMessage(null), 3000);
     }
   };
 
@@ -644,7 +664,18 @@ export function AdminPortal() {
                             <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded uppercase">{doc.category}</span>
                             {doc.subType && <span className="text-[10px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-200 uppercase">{doc.subType}</span>}
                           </div>
-                          <h3 className="font-bold text-slate-800 text-base mb-2 break-words" title={doc.name}>{doc.name}</h3>
+                          {editingDocId === doc.id ? (
+                            <input
+                              type="text"
+                              value={editDocName}
+                              onChange={(e) => setEditDocName(e.target.value)}
+                              className="w-full px-3 py-1 mb-2 font-bold text-slate-800 text-base border-b border-postal-red/50 focus:border-postal-red focus:outline-none bg-slate-50 rounded"
+                              placeholder="Document Name"
+                              autoFocus
+                            />
+                          ) : (
+                            <h3 className="font-bold text-slate-800 text-base mb-2 break-words" title={doc.name}>{doc.name}</h3>
+                          )}
                           <div className="flex items-center gap-3">
                             <a href={doc.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-postal-red hover:underline flex items-center gap-1">
                               <LinkIcon size={12} /> View File
@@ -654,7 +685,27 @@ export function AdminPortal() {
                             </span>
                           </div>
                         </div>
-                        <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Delete"><Trash2 size={20} /></button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {editingDocId === doc.id ? (
+                            <>
+                              <button onClick={() => handleUpdateDoc(doc.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Save">
+                                <CheckCircle2 size={20} />
+                              </button>
+                              <button onClick={() => setEditingDocId(null)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-colors" title="Cancel">
+                                <X size={20} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => { setEditingDocId(doc.id); setEditDocName(doc.name); }} className="p-2 text-slate-400 hover:text-postal-red hover:bg-red-50 rounded-lg transition-colors" title="Edit Name">
+                                <Edit2 size={20} />
+                              </button>
+                              <button onClick={() => handleDelete(doc.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                                <Trash2 size={20} />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </motion.div>
                     ))}
                   </AnimatePresence>
