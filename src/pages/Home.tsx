@@ -69,6 +69,7 @@ const QUICK_LINKS = [
   { icon: FileText, title: "POSTAL MANUALS", desc: "Volume V, VI, and VII resources", link: "/portal/manuals" },
   { icon: Calculator, title: "ACCOUNTANT EXAM", desc: "PO Accountant Exam resources", link: "/portal/accountant" },
   { icon: MoreHorizontal, title: "OTHERS", desc: "Miscellaneous portal documents", link: "/portal/others" },
+  { icon: FileDown, title: "FORMS", desc: "Downloadable postal forms", link: "/portal/forms" },
 ];
 
 const BRANCHES = [

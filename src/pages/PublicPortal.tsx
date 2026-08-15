@@ -7,7 +7,7 @@ import {
   FileText, ExternalLink, ChevronRight, 
   ArrowLeft, Search, Filter, BookOpen,
   Download, Clock, Tag, LayoutPanelLeft,
-  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon
+  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -44,7 +44,8 @@ const CATEGORY_MAP: Record<string, string> = {
   'manuals': 'POSTAL MANUALS',
   'accountant': 'ACCOUNTANT EXAM',
   'others': 'OTHERS',
-  'employee-site': 'Employee Site'
+  'employee-site': 'Employee Site',
+  'forms': 'Forms'
 };
 
 const CARD_COLORS = [
@@ -104,7 +105,7 @@ export function PublicPortal() {
 
   const subTypes = Object.keys(groupedDocs).sort();
 
-  const isDirectView = categoryName === 'Employee Site' || (subTypes.length === 1 && subTypes[0] === '');
+  const isDirectView = categoryName === 'Employee Site' || categoryName === 'Forms' || (subTypes.length === 1 && subTypes[0] === '');
   const activeSubType = isDirectView ? (subTypes[0] || '') : selectedSubType;
 
   if (loading) {
@@ -223,12 +224,50 @@ export function PublicPortal() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className={categoryName === 'Forms' ? "flex flex-col gap-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}
               >
                 {groupedDocs[activeSubType as string]?.map((doc, i) => {
                   const typeInfo = getFileTypeInfo(doc.link);
                   const color = CARD_COLORS[i % CARD_COLORS.length];
                   
+                  if (categoryName === 'Forms') {
+                    return (
+                      <div key={doc.id} className="flex items-center justify-between p-4 bg-[#1e2330] border-l-4 border-postal-red rounded-sm">
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{doc.subType || 'SAVINGS'}</span>
+                          <h3 className="text-white font-bold text-base truncate">{doc.name}</h3>
+                          <p className="text-slate-400 text-xs truncate">{doc.name}</p>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0 ml-4">
+                          <a
+                            href={doc.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded font-bold text-sm hover:bg-red-200 transition-colors"
+                          >
+                            <FileText size={16} /> View PDF
+                          </a>
+                          <a
+                             href={doc.link}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="flex items-center justify-center w-9 h-9 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
+                          >
+                            <MessageSquare size={16} />
+                          </a>
+                          <a
+                             href={doc.link}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="flex items-center justify-center w-9 h-9 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                          >
+                            <LinkIcon size={16} />
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <motion.a
                       key={doc.id}

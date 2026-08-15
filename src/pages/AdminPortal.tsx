@@ -826,12 +826,12 @@ export function AdminPortal() {
               </div>
             </div>
           </div>
-        ) : activeTab === 'Employee Site' ? (
+        ) : (activeTab === 'Employee Site' || activeTab === 'Forms') ? (
           <div className="max-w-5xl mx-auto">
             <div className="mb-10">
-              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">EMPLOYEE SITE</h1>
+              <h1 className="text-3xl font-black text-postal-dark-maroon uppercase mb-1">{activeTab.toUpperCase()}</h1>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                Upload files and links to the employee portal.
+                Upload files and links to the {activeTab.toLowerCase()}.
               </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -841,7 +841,7 @@ export function AdminPortal() {
                 </h2>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
-                  await handleDocSubmit(e, 'Employee Site');
+                  await handleDocSubmit(e, activeTab);
                 }} className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Document Title *</label>
@@ -851,6 +851,16 @@ export function AdminPortal() {
                       placeholder="Enter the title..."
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none resize-none h-24"
                       required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tag/Category (Optional)</label>
+                    <input 
+                      type="text"
+                      value={docFormData.subType}
+                      onChange={(e) => setDocFormData({...docFormData, subType: e.target.value})}
+                      placeholder="e.g. SAVINGS"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red outline-none"
                     />
                   </div>
                   <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -883,12 +893,13 @@ export function AdminPortal() {
                 </form>
               </div>
               <div className="lg:col-span-7">
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Published Items ({portalDocs.filter(d => d.category === 'Employee Site').length})</h2>
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Published Items ({portalDocs.filter(d => d.category === activeTab).length})</h2>
                 <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                   <AnimatePresence>
-                    {portalDocs.filter(d => d.category === 'Employee Site').map((doc) => (
+                    {portalDocs.filter(d => d.category === activeTab).map((doc) => (
                       <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between gap-4 group">
                         <div className="flex-1 min-w-0">
+                          {doc.subType && <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">{doc.subType}</span>}
                           {editingDocId === doc.id ? (
                             <input
                               type="text"
@@ -929,7 +940,7 @@ export function AdminPortal() {
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {portalDocs.filter(d => d.category === 'Employee Site').length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No items published yet.</div>}
+                  {portalDocs.filter(d => d.category === activeTab).length === 0 && <div className="text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium">No items published yet.</div>}
                 </div>
               </div>
             </div>
