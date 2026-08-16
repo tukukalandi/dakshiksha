@@ -98,6 +98,7 @@ export function PublicPortal() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubType, setSelectedSubType] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>('');
   
   const categoryName = CATEGORY_MAP[categorySlug || ''] || categorySlug;
 
@@ -122,11 +123,15 @@ export function PublicPortal() {
     return () => unsubscribe();
   }, [categoryName]);
 
-  const filteredDocs = documents.filter(doc => 
-    doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.subType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const allSubTypes = Array.from(new Set(documents.map(doc => doc.subType))).filter(Boolean).sort();
+
+  const filteredDocs = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.subType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory ? doc.subType === filterCategory : true;
+    return matchesSearch && matchesCategory;
+  });
 
   const groupedDocs = filteredDocs.reduce((acc, doc) => {
     if (!acc[doc.subType]) {
@@ -191,15 +196,34 @@ export function PublicPortal() {
               )}
             </div>
 
-            <div className="relative w-full md:w-80 search-container">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="text"
-                placeholder={activeSubType !== null ? "Search documents..." : "Search categories..."}
-                value={searchQuery || ''}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm"
-              />
+            <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+              {categoryName === 'Forms' && allSubTypes.length > 0 && (
+                <div className="relative w-full sm:w-48">
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm appearance-none cursor-pointer"
+                  >
+                    <option value="">All Categories</option>
+                    {allSubTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              )}
+              <div className="relative w-full md:w-80 search-container">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input 
+                  type="text"
+                  placeholder={activeSubType !== null ? "Search documents..." : "Search categories..."}
+                  value={searchQuery || ''}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-postal-red/20 focus:border-postal-red transition-all shadow-sm"
+                />
+              </div>
             </div>
           </div>
         </div>
