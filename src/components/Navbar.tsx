@@ -507,6 +507,7 @@ export function Navbar() {
           <div className="flex items-center justify-start min-h-12 py-2 md:py-0 w-full max-w-full">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 md:gap-x-10 text-[12px] md:text-[13px] font-bold text-white px-2">
               <Link to="/" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">HOME</Link>
+              <Link to="/exam-portal" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">EXAM PORTAL</Link>
               <Link to="/my-apps" className="hover:text-postal-yellow transition-colors tracking-widest uppercase">MY APP</Link>
               
               <div 
@@ -571,6 +572,7 @@ export function Navbar() {
                 <ArrowLeft size={16} /> BACK TO HOME
               </Link>
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">HOME</Link>
+              <Link to="/exam-portal" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50 uppercase">EXAM PORTAL</Link>
               <Link to="/my-apps" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50 uppercase">MY APP</Link>
               <Link to="/my-branch-portal" onClick={() => setIsMenuOpen(false)} className="block py-2 font-bold text-slate-700 border-b border-slate-50">MY BRANCH PORTAL</Link>
               

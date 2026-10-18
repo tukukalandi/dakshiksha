@@ -7,7 +7,7 @@ import {
   FileText, ExternalLink, ChevronRight, 
   ArrowLeft, Search, Filter, BookOpen,
   Download, Clock, Tag, LayoutPanelLeft,
-  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, FileText, MessageCircle, Check
+  FileBadge, FileJson, FileType, Youtube, Link as LinkIcon, MessageSquare, MessageCircle, Check
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 

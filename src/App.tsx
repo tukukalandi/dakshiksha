@@ -11,7 +11,6 @@ import { Home } from './pages/Home';
 import { ClassView } from './pages/ClassView';
 import { SubjectView } from './pages/SubjectView';
 import { ChapterView } from './pages/ChapterView';
-import { CompetitiveExams } from './pages/CompetitiveExams';
 import { POGuide } from './pages/POGuide';
 import { BDBranch } from './pages/BDBranch';
 import { Rules } from './pages/Rules';
@@ -26,6 +25,7 @@ import { PublicPortal } from './pages/PublicPortal';
 import { MyBranchPortal } from './pages/MyBranchPortal';
 import { MyAppsPage } from './pages/MyAppsPage';
 import { MyAppViewer } from './pages/MyAppViewer';
+import { ExamPortal } from './pages/ExamPortal';
 
 export default function App() {
   return (
@@ -47,7 +47,8 @@ export default function App() {
               <Route path="/exams/accountant" element={<AccountantExam />} />
               <Route path="/branch/savings" element={<SavingsBranch />} />
               <Route path="/branch/other" element={<OtherBranch />} />
-              <Route path="/competitive-exams" element={<CompetitiveExams />} />
+              <Route path="/exam-portal" element={<ExamPortal />} />
+              <Route path="/competitive-exams" element={<ExamPortal />} />
               <Route path="/exams/po-guide" element={<POGuide />} />
               <Route path="/branch/bd" element={<BDBranch />} />
               <Route path="/class/:classId" element={<ClassView />} />

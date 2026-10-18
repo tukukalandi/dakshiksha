@@ -4,14 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { cn } from '../lib/utils';
-import ReactPlayer from 'react-player';
 import { 
-  ArrowRight, BookOpen, Video, PenTool, Trophy, ChevronRight, 
-  Download, GraduationCap, Bell, Newspaper, Calendar, Info, 
-  ExternalLink, FileText, LayoutGrid, Search, Users, Book,
-  Globe, Mail, Phone, MapPin, Facebook, Twitter, Youtube, Instagram,
-  Briefcase, Stamp, Package, MoreHorizontal, Calculator,
-  AlertCircle, Landmark, ShieldCheck, Fingerprint, Map, FileDown, Smartphone, Send, FileBadge, ImageIcon, AppWindow, PiggyBank, HelpCircle, FileStack, Percent, UserCircle
+  ArrowRight, GraduationCap, Bell, FileText, Search,
+  Calculator, Landmark, ShieldCheck, Fingerprint, Map, 
+  FileDown, Smartphone, PiggyBank, HelpCircle, FileStack, Percent, UserCircle
 } from 'lucide-react';
 
 const SLIDES = [
@@ -59,28 +55,6 @@ const SLIDES = [
   }
 ];
 
-const QUICK_LINKS = [
-  { icon: BookOpen, title: "GDS TO MTS", desc: "Study material for MTS recruitment", link: "/portal/mts" },
-  { icon: GraduationCap, title: "POSTMAN EXAM", desc: "Resources for Postman/Mail Guard", link: "/portal/postman" },
-  { icon: Trophy, title: "PA/SA EXAM", desc: "Postal & Sorting Assistant material", link: "/portal/pa" },
-  { icon: LayoutGrid, title: "LGO EXAM", desc: "Lower Grade Official promotion", link: "/portal/lgo" },
-  { icon: Newspaper, title: "IP EXAM", desc: "Inspector Posts preparation", link: "/portal/inspector" },
-  { icon: Book, title: "PO GUIDE", desc: "Post Office Guide Part I & II", link: "/portal/po-guide" },
-  { icon: FileText, title: "POSTAL MANUALS", desc: "Volume V, VI, and VII resources", link: "/portal/manuals" },
-  { icon: Calculator, title: "ACCOUNTANT EXAM", desc: "PO Accountant Exam resources", link: "/portal/accountant" },
-  { icon: MoreHorizontal, title: "OTHERS", desc: "Miscellaneous portal documents", link: "/portal/others" },
-  { icon: FileDown, title: "FORMS", desc: "Downloadable postal forms", link: "/portal/forms" },
-];
-
-const BRANCHES = [
-  { name: 'Mail Branch', icon: Mail, desc: 'Mail processing and delivery operations' },
-  { name: 'BD Branch', icon: Briefcase, desc: 'Business Development and marketing' },
-  { name: 'Philately Branch', icon: Stamp, desc: 'Stamps and collector services' },
-  { name: 'Parcel Branch', icon: Package, desc: 'Parcel and logistics management' },
-  { name: 'CCS Branch', icon: Users, desc: 'Central Civil Services guidelines' },
-  { name: 'Other Branch', icon: MoreHorizontal, desc: 'Miscellaneous postal operations' },
-];
-
 const SERVICES = [
   { title: "Track Consignment", icon: Search, color: "text-emerald-600", bg: "bg-emerald-50", link: "https://www.indiapost.gov.in/" },
   { title: "Internet Banking", icon: Landmark, color: "text-amber-600", bg: "bg-amber-50", link: "https://ebanking.indiapost.gov.in/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=DOP" },
@@ -96,17 +70,6 @@ const SERVICES = [
   { title: "Interest Rates", icon: Percent, color: "text-orange-600", bg: "bg-orange-50", link: "https://interest-rates-nine.vercel.app/" },
   { title: "Customer Login", icon: UserCircle, color: "text-indigo-600", bg: "bg-indigo-50", link: "https://app.indiapost.gov.in/customer-selfservice/login" },
   { title: "Tariff Calculator", icon: Calculator, color: "text-red-500", bg: "bg-red-50", link: "https://tariff-calculator-nu.vercel.app/" },
-];
-
-const CARD_COLORS = [
-  { border: 'border-blue-500', icon: 'bg-blue-50 text-blue-600', text: 'text-blue-700', shadow: 'hover:shadow-blue-500/20', accent: 'bg-blue-600' },
-  { border: 'border-emerald-500', icon: 'bg-emerald-50 text-emerald-600', text: 'text-emerald-700', shadow: 'hover:shadow-emerald-500/20', accent: 'bg-emerald-600' },
-  { border: 'border-rose-500', icon: 'bg-rose-50 text-rose-600', text: 'text-rose-700', shadow: 'hover:shadow-rose-500/20', accent: 'bg-rose-600' },
-  { border: 'border-amber-500', icon: 'bg-amber-50 text-amber-600', text: 'text-amber-700', shadow: 'hover:shadow-amber-500/20', accent: 'bg-amber-600' },
-  { border: 'border-violet-500', icon: 'bg-violet-50 text-violet-600', text: 'text-violet-700', shadow: 'hover:shadow-violet-500/20', accent: 'bg-violet-600' },
-  { border: 'border-cyan-500', icon: 'bg-cyan-50 text-cyan-600', text: 'text-cyan-700', shadow: 'hover:shadow-cyan-500/20', accent: 'bg-cyan-600' },
-  { border: 'border-orange-500', icon: 'bg-orange-50 text-orange-600', text: 'text-orange-700', shadow: 'hover:shadow-orange-500/20', accent: 'bg-orange-600' },
-  { border: 'border-indigo-500', icon: 'bg-indigo-50 text-indigo-600', text: 'text-indigo-700', shadow: 'hover:shadow-indigo-500/20', accent: 'bg-indigo-600' },
 ];
 
 export function Home() {
@@ -212,12 +175,18 @@ export function Home() {
                   <p className="text-lg md:text-xl opacity-90 mb-8">
                     {(heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.description || (heroSlides.length > 0 ? heroSlides : SLIDES)[currentSlide]?.subtitle}
                   </p>
-                  <div className="flex gap-4">
-                    <button className="bg-postal-yellow text-slate-900 px-8 py-3 rounded-sm font-bold hover:bg-white transition-colors">
-                      Learn More
+                  <div className="flex flex-wrap gap-4">
+                    <button 
+                      onClick={() => navigate('/exam-portal')} 
+                      className="bg-postal-yellow text-slate-900 px-8 py-3 rounded-sm font-bold hover:bg-white transition-colors"
+                    >
+                      Exam Portal
                     </button>
-                    <button className="border-2 border-white text-white px-8 py-3 rounded-sm font-bold hover:bg-white/10 transition-colors">
-                      Explore Resources
+                    <button 
+                      onClick={() => navigate('/portal/forms')} 
+                      className="border-2 border-white text-white px-8 py-3 rounded-sm font-bold hover:bg-white/10 transition-colors"
+                    >
+                      Download Forms
                     </button>
                   </div>
                 </motion.div>
@@ -238,37 +207,32 @@ export function Home() {
         </div>
       </div>
 
-      {/* Quick Links Grid */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 mb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {QUICK_LINKS.map((item, i) => {
-            const color = CARD_COLORS[i % CARD_COLORS.length];
-            return (
-              <Link
-                key={i}
-                to={item.link}
-                className="block group"
-              >
-                <motion.div
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className={cn(
-                    "bg-white p-6 rounded-3xl shadow-xl border-l-8 transition-all h-full text-center flex flex-col items-center",
-                    color.border,
-                    color.shadow
-                  )}
-                >
-                  <div className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all group-hover:scale-110",
-                    color.icon
-                  )}>
-                    <item.icon size={28} />
-                  </div>
-                  <h3 className={cn("font-black text-sm uppercase tracking-tight mb-1", color.text)}>{item.title}</h3>
-                  <p className="text-[10px] text-slate-500 leading-tight font-medium opacity-70 group-hover:opacity-100 transition-opacity uppercase tracking-widest">{item.desc}</p>
-                </motion.div>
-              </Link>
-            );
-          })}
+      {/* Exam Portal Gateway Banner */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 mb-12">
+        <div className="bg-gradient-to-r from-[#5b1e25] via-[#801824] to-[#a81c2b] text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 text-postal-yellow border border-white/20 shadow-inner">
+              <GraduationCap size={36} />
+            </div>
+            <div>
+              <div className="inline-block px-3 py-0.5 rounded-full bg-postal-yellow/20 text-postal-yellow text-[10px] font-black uppercase tracking-widest mb-1.5 border border-postal-yellow/30">
+                Departmental Exams
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                Postal Exam Portal
+              </h2>
+              <p className="text-xs sm:text-sm text-white/80 max-w-xl mt-1">
+                Access complete study materials, question banks, and syllabus guides for GDS to MTS, Postman, PA/SA, IP, LGO, and PO Accountant exams.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/exam-portal"
+            className="w-full md:w-auto px-6 py-3.5 bg-postal-yellow text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 shrink-0 group"
+          >
+            <span>Open Exam Portal</span>
+            <ArrowRight size={16} className="transform transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
       </div>
 
