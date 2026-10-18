@@ -7,7 +7,8 @@ import { cn } from '../lib/utils';
 import { 
   ArrowRight, GraduationCap, Bell, FileText, Search,
   Calculator, Landmark, ShieldCheck, Fingerprint, Map, 
-  FileDown, Smartphone, PiggyBank, HelpCircle, FileStack, Percent, UserCircle
+  Smartphone, PiggyBank, HelpCircle, FileStack, Percent, UserCircle,
+  ScrollText, ArrowUpRight
 } from 'lucide-react';
 
 const SLIDES = [
@@ -56,20 +57,141 @@ const SLIDES = [
 ];
 
 const SERVICES = [
-  { title: "Track Consignment", icon: Search, color: "text-emerald-600", bg: "bg-emerald-50", link: "https://www.indiapost.gov.in/" },
-  { title: "Internet Banking", icon: Landmark, color: "text-amber-600", bg: "bg-amber-50", link: "https://ebanking.indiapost.gov.in/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=DOP" },
-  { title: "PLI / RPLI", icon: ShieldCheck, color: "text-blue-600", bg: "bg-blue-50" },
-  { title: "Postage Calculator", icon: Calculator, color: "text-orange-500", bg: "bg-orange-50", link: "https://www.indiapost.gov.in/calculate-postage" },
-  { title: "Aadhaar Services", icon: Fingerprint, color: "text-indigo-600", bg: "bg-indigo-50", link: "https://uidai.gov.in/en/" },
-  { title: "DIGIPIN", icon: Map, color: "text-rose-500", bg: "bg-rose-50", link: "https://dac.indiapost.gov.in/mydigipin/home" },
-  { title: "Download Forms", icon: FileDown, color: "text-slate-600", bg: "bg-slate-50", link: "https://indiapost-repository.vercel.app/" },
-  { title: "IPPB Service", icon: Smartphone, color: "text-blue-500", bg: "bg-blue-50", link: "https://ippbonline.bank.in/en/web/ippb" },
-  { title: "Post Office Savings Scheme", icon: PiggyBank, color: "text-emerald-600", bg: "bg-emerald-50", link: "https://www.indiapost.gov.in/banking-services/savings" },
-  { title: "Finacle Assistant", icon: HelpCircle, color: "text-blue-600", bg: "bg-blue-50", link: "https://finacle-user-guide.vercel.app/" },
-  { title: "Multi Receipt Converter", icon: FileStack, color: "text-purple-600", bg: "bg-purple-50", link: "https://multi-receipt.vercel.app/" },
-  { title: "Interest Rates", icon: Percent, color: "text-orange-600", bg: "bg-orange-50", link: "https://interest-rates-nine.vercel.app/" },
-  { title: "Customer Login", icon: UserCircle, color: "text-indigo-600", bg: "bg-indigo-50", link: "https://app.indiapost.gov.in/customer-selfservice/login" },
-  { title: "Tariff Calculator", icon: Calculator, color: "text-red-500", bg: "bg-red-50", link: "https://tariff-calculator-nu.vercel.app/" },
+  { 
+    title: "Forms", 
+    icon: FileText, 
+    normalIcon: "text-blue-600 bg-blue-50 border-blue-200", 
+    topAccent: "bg-blue-600",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-blue-600 group-hover:to-indigo-700",
+    hoverShadow: "group-hover:shadow-blue-500/35",
+    link: "https://indiapost-repository.vercel.app/" 
+  },
+  { 
+    title: "Circulars", 
+    icon: ScrollText, 
+    normalIcon: "text-rose-600 bg-rose-50 border-rose-200", 
+    topAccent: "bg-rose-600",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-rose-600 group-hover:to-red-700",
+    hoverShadow: "group-hover:shadow-rose-500/35",
+    link: "https://circulars.vercel.app/" 
+  },
+  { 
+    title: "Track Consignment", 
+    icon: Search, 
+    normalIcon: "text-emerald-600 bg-emerald-50 border-emerald-200", 
+    topAccent: "bg-emerald-600",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-emerald-600 group-hover:to-teal-700",
+    hoverShadow: "group-hover:shadow-emerald-500/35",
+    link: "https://www.indiapost.gov.in/" 
+  },
+  { 
+    title: "Internet Banking", 
+    icon: Landmark, 
+    normalIcon: "text-amber-600 bg-amber-50 border-amber-200", 
+    topAccent: "bg-amber-500",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-600",
+    hoverShadow: "group-hover:shadow-amber-500/35",
+    link: "https://ebanking.indiapost.gov.in/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=DOP" 
+  },
+  { 
+    title: "PLI / RPLI", 
+    icon: ShieldCheck, 
+    normalIcon: "text-sky-600 bg-sky-50 border-sky-200", 
+    topAccent: "bg-sky-600",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-sky-600 group-hover:to-blue-700",
+    hoverShadow: "group-hover:shadow-sky-500/35",
+    link: "https://pli.indiapost.gov.in/" 
+  },
+  { 
+    title: "Postage Calculator", 
+    icon: Calculator, 
+    normalIcon: "text-orange-500 bg-orange-50 border-orange-200", 
+    topAccent: "bg-orange-500",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-orange-500 group-hover:to-red-600",
+    hoverShadow: "group-hover:shadow-orange-500/35",
+    link: "https://www.indiapost.gov.in/calculate-postage" 
+  },
+  { 
+    title: "Aadhaar Services", 
+    icon: Fingerprint, 
+    normalIcon: "text-indigo-600 bg-indigo-50 border-indigo-200", 
+    topAccent: "bg-indigo-600",
+    hoverBg: "group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-700",
+    hoverShadow: "group-hover:shadow-indigo-500/35",
+    link: "https://uidai.gov.in/en/" 
+  },
+  { 
+    title: "DIGIPIN", 
+    icon: Map, 
+    normalIcon: "text-pink-600 bg-pink-50 border-pink-200", 
+    topAccent: "bg-pink-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-pink-600 hover:to-rose-700",
+    hoverShadow: "group-hover:shadow-pink-500/35",
+    link: "https://dac.indiapost.gov.in/mydigipin/home" 
+  },
+  { 
+    title: "IPPB Service", 
+    icon: Smartphone, 
+    normalIcon: "text-cyan-600 bg-cyan-50 border-cyan-200", 
+    topAccent: "bg-cyan-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-cyan-600 hover:to-blue-600",
+    hoverShadow: "group-hover:shadow-cyan-500/35",
+    link: "https://ippbonline.bank.in/en/web/ippb" 
+  },
+  { 
+    title: "Post Office Savings Scheme", 
+    icon: PiggyBank, 
+    normalIcon: "text-teal-600 bg-teal-50 border-teal-200", 
+    topAccent: "bg-teal-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-teal-600 hover:to-emerald-700",
+    hoverShadow: "group-hover:shadow-teal-500/35",
+    link: "https://www.indiapost.gov.in/banking-services/savings" 
+  },
+  { 
+    title: "Finacle Assistant", 
+    icon: HelpCircle, 
+    normalIcon: "text-violet-600 bg-violet-50 border-violet-200", 
+    topAccent: "bg-violet-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-violet-600 hover:to-purple-800",
+    hoverShadow: "group-hover:shadow-violet-500/35",
+    link: "https://finacle-user-guide.vercel.app/" 
+  },
+  { 
+    title: "Multi Receipt Converter", 
+    icon: FileStack, 
+    normalIcon: "text-purple-600 bg-purple-50 border-purple-200", 
+    topAccent: "bg-purple-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-purple-600 hover:to-fuchsia-700",
+    hoverShadow: "group-hover:shadow-purple-500/35",
+    link: "https://multi-receipt.vercel.app/" 
+  },
+  { 
+    title: "Interest Rates", 
+    icon: Percent, 
+    normalIcon: "text-amber-600 bg-amber-50 border-amber-200", 
+    topAccent: "bg-amber-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-amber-600 hover:to-orange-700",
+    hoverShadow: "group-hover:shadow-amber-500/35",
+    link: "https://interest-rates-nine.vercel.app/" 
+  },
+  { 
+    title: "Customer Login", 
+    icon: UserCircle, 
+    normalIcon: "text-blue-700 bg-blue-50 border-blue-200", 
+    topAccent: "bg-blue-700",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-blue-700 hover:to-indigo-900",
+    hoverShadow: "group-hover:shadow-blue-700/35",
+    link: "https://app.indiapost.gov.in/customer-selfservice/login" 
+  },
+  { 
+    title: "Tariff Calculator", 
+    icon: Calculator, 
+    normalIcon: "text-red-600 bg-red-50 border-red-200", 
+    topAccent: "bg-red-600",
+    hoverBg: "group-hover:bg-gradient-to-br hover:from-red-600 hover:to-rose-800",
+    hoverShadow: "group-hover:shadow-red-600/35",
+    link: "https://tariff-calculator-nu.vercel.app/" 
+  },
 ];
 
 export function Home() {
@@ -250,21 +372,54 @@ export function Home() {
             <div className="w-20 h-1 bg-postal-yellow mx-auto mt-6 rounded-full" />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
             {SERVICES.map((service, i) => {
               const CardContent = (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.92 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white p-6 rounded-sm shadow-sm border border-slate-100 flex flex-col items-center text-center group cursor-pointer hover:shadow-md transition-all h-full"
+                  transition={{ delay: i * 0.03, duration: 0.25 }}
+                  whileHover={{ y: -6, scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    "relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200 shadow-sm flex flex-col items-center text-center group cursor-pointer transition-all duration-300 h-full min-h-[160px] justify-between",
+                    service.hoverBg,
+                    service.hoverShadow,
+                    "hover:border-transparent hover:shadow-xl"
+                  )}
                 >
-                  <div className={`w-12 h-12 ${service.bg} rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <service.icon size={24} className={service.color} />
+                  {/* Top Color Accent Bar */}
+                  <div className={cn("absolute top-0 left-0 right-0 h-1.5 transition-all duration-300 group-hover:h-0", service.topAccent)} />
+
+                  {/* Radial Glow Aura on Hover */}
+                  <div className="absolute -bottom-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  {/* Top-Right Mini Link Arrow */}
+                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-slate-100/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/20 transition-all duration-300 -translate-y-1 group-hover:translate-y-0 text-slate-500 group-hover:text-white shadow-xs">
+                    <ArrowUpRight size={13} className="stroke-[2.5]" />
                   </div>
-                  <h3 className="text-xs font-bold text-slate-700 leading-tight">{service.title}</h3>
+
+                  {/* Icon Badge */}
+                  <div className={cn(
+                    "w-14 h-14 rounded-2xl border flex items-center justify-center mb-3.5 transition-all duration-300 shadow-xs",
+                    service.normalIcon,
+                    "group-hover:bg-white/20 group-hover:border-white/30 group-hover:text-white group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-md"
+                  )}>
+                    <service.icon size={26} className="transition-transform duration-300 group-hover:scale-110" />
+                  </div>
+
+                  {/* Bold Card Title */}
+                  <div className="w-full flex-1 flex flex-col justify-center">
+                    <h3 className="text-sm sm:text-[15px] font-black text-slate-900 group-hover:text-white transition-colors duration-300 tracking-tight leading-snug px-1">
+                      {service.title}
+                    </h3>
+                  </div>
+
+                  {/* Bottom Indicator */}
+                  <div className="mt-3 text-[10px] font-black uppercase tracking-wider text-slate-400 group-hover:text-white/90 transition-colors duration-300 flex items-center gap-1 opacity-70 group-hover:opacity-100">
+                    <span>Quick Access</span>
+                  </div>
                 </motion.div>
               );
 
@@ -275,7 +430,7 @@ export function Home() {
                     href={service.link} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="block h-full"
+                    className="block h-full group"
                   >
                     {CardContent}
                   </a>
@@ -283,7 +438,7 @@ export function Home() {
               }
 
               return (
-                <div key={service.title}>
+                <div key={service.title} className="block h-full">
                   {CardContent}
                 </div>
               );
